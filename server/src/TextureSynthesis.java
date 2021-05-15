@@ -223,8 +223,8 @@ public class TextureSynthesis {
 
         r1 = genC.getRed();
         r2 = exC.getRed();
-        g1 = genC.getRed();
-        g2 = exC.getRed();
+        g1 = genC.getGreen();
+        g2 = exC.getGreen();
         b1 = genC.getBlue();
         b2 = exC.getBlue();
 
