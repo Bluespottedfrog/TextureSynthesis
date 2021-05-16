@@ -4,25 +4,27 @@ import java.awt.image.BufferedImage;
 public class TextureSynthesis {
 
     int rows, cols;
-    BufferedImage txt;
+    BufferedImage originalImage;
     BufferedImage[][] patchArray;
 
     int blockSize;
     double tolerance;
     int overlap;
 
-    public TextureSynthesis(BufferedImage texture, int blockSize) {
-        txt = texture;
+    public TextureSynthesis(BufferedImage originalImage, int blockSize) {
+        this.originalImage = originalImage;
+        // TODO: pass as arguments in constructor
         rows = 10;
         cols = 10;
         patchArray = new BufferedImage[rows][cols];
         this.blockSize = blockSize;
+        // TODO: What do overlap and tolerance mean?
         overlap = blockSize / 6;
         tolerance = 100;
     }
 
     private void fillPatch() {
-        Block block = new Block(txt, blockSize);
+        Block block = new Block(originalImage, blockSize);
         BufferedImage genesis = block.generateBlock();
         int sampleSize = 100;
 
@@ -34,7 +36,7 @@ public class TextureSynthesis {
                 } else if (j > 0 && i == 0) {
                     genesis = matchBlock(null, patchArray[j - 1][i], sampleSize);
                 } else if (j > 0 && i > 0) {
-                    genesis = matchBlock(patchArray[j][i - 1], patchArray[i - 1][j], sampleSize);
+                    genesis = matchBlock(patchArray[j][i - 1], patchArray[j - 1][i], sampleSize);
                 }
 
                 patchArray[j][i] = genesis;
@@ -43,11 +45,11 @@ public class TextureSynthesis {
     }
 
     public BufferedImage randomize() {
-        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, txt.getType());
+        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, originalImage.getType());
 
         for (int j = 0; j < rows; j++) {
             for (int i = 0; i < cols; i++) {
-                BufferedImage tile = new Block(txt, blockSize).generateBlock();
+                BufferedImage tile = new Block(originalImage, blockSize).generateBlock();
 
                 for (int x = 0; x < blockSize; x++) {
                     for (int y = 0; y < blockSize; y++) {
@@ -61,7 +63,7 @@ public class TextureSynthesis {
     }
 
     public BufferedImage generateNoFill() {
-        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, txt.getType());
+        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, originalImage.getType());
         fillPatch();
 
         //Fill with everything
@@ -81,7 +83,7 @@ public class TextureSynthesis {
     }
 
     public BufferedImage generateTexture() {
-        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, txt.getType());
+        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, originalImage.getType());
         fillPatch();
 
         //Fill with everything
@@ -134,7 +136,7 @@ public class TextureSynthesis {
 
 
     private BufferedImage matchBlock(BufferedImage genesisW, BufferedImage genesisH, int sampleSize) {
-        Block block = new Block(txt, blockSize);
+        Block block = new Block(originalImage, blockSize);
         int index = 0;
         BufferedImage[] sampleBlocks = new BufferedImage[sampleSize];
         double[] error = new double[sampleSize];
@@ -143,7 +145,7 @@ public class TextureSynthesis {
 
         //Fill an array of length sampleSize samples of blocks that could match the genesis
         for (int i = 0; i < sampleSize; i++) {
-            block = new Block(txt, blockSize);
+            block = new Block(originalImage, blockSize);
             sampleBlocks[i] = block.generateBlock();
         }
 
