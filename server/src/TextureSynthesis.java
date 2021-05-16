@@ -24,22 +24,22 @@ public class TextureSynthesis {
     }
 
     private void fillPatch() {
-        Block block = new Block(originalImage, blockSize);
-        BufferedImage genesis = block.generateBlock();
+        // TODO: Move out to constant or let this be controlled as a field?
         int sampleSize = 100;
 
         for (int j = 0; j < rows; j++) {
             for (int i = 0; i < cols; i++) {
-                //TEMP: If the image is the first in the row or column, then generate a block
-                if (j == 0 && i > 0) {
-                    genesis = matchBlock(patchArray[j][i - 1], null, sampleSize);
-                } else if (j > 0 && i == 0) {
-                    genesis = matchBlock(null, patchArray[j - 1][i], sampleSize);
-                } else if (j > 0 && i > 0) {
-                    genesis = matchBlock(patchArray[j][i - 1], patchArray[j - 1][i], sampleSize);
+                BufferedImage leftBlock = null;
+                BufferedImage aboveBlock = null;
+
+                if (i > 0) {
+                    leftBlock = patchArray[j][i - 1];
+                }
+                if (j > 0) {
+                    aboveBlock = patchArray[j - 1][i];
                 }
 
-                patchArray[j][i] = genesis;
+                patchArray[j][i] = matchBlock(leftBlock, aboveBlock, sampleSize);
             }
         }
     }
