@@ -29,15 +29,8 @@ public class TextureSynthesis {
 
         for (int j = 0; j < rows; j++) {
             for (int i = 0; i < cols; i++) {
-                BufferedImage leftBlock = null;
-                BufferedImage aboveBlock = null;
-
-                if (i > 0) {
-                    leftBlock = patchArray[j][i - 1];
-                }
-                if (j > 0) {
-                    aboveBlock = patchArray[j - 1][i];
-                }
+                BufferedImage leftBlock = (i > 0) ? patchArray[j][i - 1] : null;
+                BufferedImage aboveBlock = (j > 0) ? patchArray[j - 1][i] : null;
 
                 patchArray[j][i] = matchBlock(leftBlock, aboveBlock, sampleSize);
             }
@@ -328,8 +321,6 @@ public class TextureSynthesis {
                 result[i][j] = costMaze[i][j];
 
                 if (i > 0 && j > 0) {
-                    double temp = Math.min(result[i - 1][j], result[i][j - 1]);
-                    temp = Math.min(temp, result[i - 1][j - 1]);
                     result[i][j] += Math.min(result[i - 1][j], result[i][j - 1]);
                 } else if (i > 0) {
                     result[i][j] += result[i - 1][j];
@@ -348,9 +339,7 @@ public class TextureSynthesis {
         if (side == 1) {
             if (costPath[j][i] == 1)
                 return b2.getRGB(i, j);
-            //return new Color(255,255,255).getRGB();
             return b1.getRGB(i + (blockSize - overlap), j);
-            //return new Color(255,255,255).getRGB();
         } else {
             if (costPath[j][i] == 1)
                 return b1.getRGB(i, j + blockSize - overlap);
