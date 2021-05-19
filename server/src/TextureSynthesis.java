@@ -13,28 +13,12 @@ public class TextureSynthesis {
 
     public TextureSynthesis(BufferedImage originalImage, int blockSize) {
         this.originalImage = originalImage;
-        // TODO: pass as arguments in constructor
         rows = 10;
         cols = 10;
         patchArray = new BufferedImage[rows][cols];
         this.blockSize = blockSize;
-        // TODO: What do overlap and tolerance mean?
         overlap = blockSize / 6;
         tolerance = 100;
-    }
-
-    private void fillPatch() {
-        // TODO: Move out to constant or let this be controlled as a field?
-        int sampleSize = 100;
-
-        for (int j = 0; j < rows; j++) {
-            for (int i = 0; i < cols; i++) {
-                BufferedImage leftBlock = (i > 0) ? patchArray[j][i - 1] : null;
-                BufferedImage aboveBlock = (j > 0) ? patchArray[j - 1][i] : null;
-
-                patchArray[j][i] = matchBlock(leftBlock, aboveBlock, sampleSize);
-            }
-        }
     }
 
     public BufferedImage randomize() {
@@ -127,74 +111,76 @@ public class TextureSynthesis {
         return result;
     }
 
+    private void fillPatch() {
+        int sampleSize = 100;
 
-    private BufferedImage matchBlock(BufferedImage genesisW, BufferedImage genesisH, int sampleSize) {
-        Block block = new Block(originalImage, blockSize);
-        int index = 0;
+        for (int j = 0; j < rows; j++) {
+            for (int i = 0; i < cols; i++) {
+                BufferedImage leftBlock = (i > 0) ? patchArray[j][i - 1] : null;
+                BufferedImage aboveBlock = (j > 0) ? patchArray[j - 1][i] : null;
+
+                patchArray[j][i] = matchBlock(leftBlock, aboveBlock, sampleSize);
+            }
+        }
+    }
+
+    private BufferedImage matchBlock(BufferedImage leftBlock, BufferedImage aboveBlock, int sampleSize) {
         BufferedImage[] sampleBlocks = new BufferedImage[sampleSize];
-        double[] error = new double[sampleSize];
-        double[] errorH = new double[sampleSize];
+        double[] errorLeft = new double[sampleSize];
+        double[] errorAbove = new double[sampleSize];
         double[] errorAvg = new double[sampleSize];
 
         //Fill an array of length sampleSize samples of blocks that could match the genesis
         for (int i = 0; i < sampleSize; i++) {
-            block = new Block(originalImage, blockSize);
+            Block block = new Block(originalImage, blockSize);
             sampleBlocks[i] = block.generateBlock();
-        }
 
-        //Find the error difference between genesis and samples
-        for (int f = 0; f < sampleSize; f++) {
-            double errorNum = 0;
-            double errorNumH = 0;
+            //Find the error difference between genesis and samples
+            double errorNumLeft = 0;
+            double errorNumAbove = 0;
 
             //Iterate through the overlap (left to right) and compare the colors
-            if (genesisW != null) {
-                for (int i = 0; i < overlap; i++) {
-                    for (int j = 0; j < blockSize; j++) {
-                        int x = i + blockSize - overlap;
-                        double res = calculateError(x, j, i, j, genesisW, sampleBlocks[f]);
-
-                        errorNum += res;
+            if (leftBlock != null) {
+                for (int block_i = 0; block_i < overlap; block_i++) {
+                    for (int block_j = 0; block_j < blockSize; block_j++) {
+                        int x = block_i + blockSize - overlap;
+                        errorNumLeft += calculateError(x, block_j, block_i, block_j, leftBlock, sampleBlocks[i]);
                     }
                 }
+
+                errorNumLeft /= overlap * blockSize;
+                errorLeft[i] = errorNumLeft;
             }
 
             //Iterate through the overlap (top down) and compare the colors
-            if (genesisH != null) {
-                for (int i = 0; i < overlap; i++) {
-                    for (int j = 0; j < blockSize; j++) {
-                        int y = i + blockSize - overlap;
-                        double res = calculateError(j, y, j, i, genesisH, sampleBlocks[f]);
-                        errorNumH += res;
+            if (aboveBlock != null) {
+                for (int block_i = 0; block_i < overlap; block_i++) {
+                    for (int block_j = 0; block_j < blockSize; block_j++) {
+                        int y = block_i + blockSize - overlap;
+                        errorNumAbove += calculateError(block_j, y, block_j, block_i, aboveBlock, sampleBlocks[i]);
                     }
                 }
-            }
 
-            if (genesisW != null) {
-                errorNum /= overlap * blockSize;
-                error[f] = errorNum;
-            }
-
-            if (genesisH != null) {
-                errorNumH /= overlap * blockSize;
-                errorH[f] = errorNumH;
+                errorNumAbove /= overlap * blockSize;
+                errorAbove[i] = errorNumAbove;
             }
         }
 
-        if (genesisW != null && genesisH != null) {
+        if (leftBlock != null && aboveBlock != null) {
             for (int i = 0; i < errorAvg.length; i++) {
-                errorAvg[i] = (error[i] + errorH[i]) / 2;
+                errorAvg[i] = (errorLeft[i] + errorAbove[i]) / 2;
             }
         }
 
+        int index = 0;
         //Find the block that is the best match based on error
         for (int i = 0; i < sampleBlocks.length; i++) {
-            if (genesisW != null && genesisH == null) {
-                if (error[i] < error[index]) {
+            if (leftBlock != null && aboveBlock == null) {
+                if (errorLeft[i] < errorLeft[index]) {
                     index = i;
                 }
-            } else if (genesisW == null && genesisH != null) {
-                if (errorH[i] < errorH[index]) {
+            } else if (leftBlock == null && aboveBlock != null) {
+                if (errorAbove[i] < errorAbove[index]) {
                     index = i;
                 }
             } else {
@@ -311,9 +297,6 @@ public class TextureSynthesis {
         return costPath;
     }
 
-
-    // =========================================
-
     private double[][] findPath(double[][] costMaze) {
         double[][] result = new double[costMaze.length][costMaze[0].length];
         for (int i = 0; i < result.length; i++) {
@@ -327,13 +310,11 @@ public class TextureSynthesis {
                 } else if (j > 0) {
                     result[i][j] += result[i][j - 1];
                 }
-
             }
         }
 
         return result;
     }
-
 
     private int getOverlapColor(BufferedImage b1, BufferedImage b2, double[][] costPath, int j, int i, int side) {
         if (side == 1) {
