@@ -21,24 +21,6 @@ public class TextureSynthesis {
         tolerance = 100;
     }
 
-    public BufferedImage randomize() {
-        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, originalImage.getType());
-
-        for (int j = 0; j < rows; j++) {
-            for (int i = 0; i < cols; i++) {
-                BufferedImage tile = new Block(originalImage, blockSize).generateBlock();
-
-                for (int x = 0; x < blockSize; x++) {
-                    for (int y = 0; y < blockSize; y++) {
-                        result.setRGB(x + blockSize * i, y + blockSize * j, tile.getRGB(x, y));
-                    }
-                }
-            }
-        }
-
-        return result;
-    }
-
     public BufferedImage generateNoFill() {
         BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, originalImage.getType());
         fillPatch();
@@ -60,21 +42,7 @@ public class TextureSynthesis {
     }
 
     public BufferedImage generateTexture() {
-        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, originalImage.getType());
-        fillPatch();
-
-        //Fill with everything
-        for (int j = 0; j < rows; j++) {
-            //Width - num of cols
-            for (int i = 0; i < cols; i++) {
-                BufferedImage tile = patchArray[j][i];
-                for (int x = 0; x < blockSize; x++) {
-                    for (int y = 0; y < blockSize; y++) {
-                        result.setRGB(x + (blockSize - overlap) * i, y + (blockSize - overlap) * j, tile.getRGB(x, y));
-                    }
-                }
-            }
-        }
+        BufferedImage result = generateNoFill();
 
         //Fill horizontal overlap
         //Height - num of rows
