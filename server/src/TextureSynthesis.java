@@ -8,7 +8,6 @@ public class TextureSynthesis {
     BufferedImage[][] patchArray;
 
     int blockSize;
-    double tolerance;
     int overlap;
 
     public TextureSynthesis(BufferedImage originalImage, int blockSize) {
@@ -18,11 +17,10 @@ public class TextureSynthesis {
         patchArray = new BufferedImage[rows][cols];
         this.blockSize = blockSize;
         overlap = blockSize / 6;
-        tolerance = 100;
     }
 
     public BufferedImage generateNoFill() {
-        BufferedImage result = new BufferedImage(blockSize * rows, blockSize * cols, originalImage.getType());
+        BufferedImage result = new BufferedImage((blockSize - overlap) * rows, (blockSize - overlap) * cols, originalImage.getType());
         fillPatch();
 
         //Fill with everything
@@ -30,8 +28,8 @@ public class TextureSynthesis {
             //Width - num of cols
             for (int i = 0; i < cols; i++) {
                 BufferedImage tile = patchArray[j][i];
-                for (int x = 0; x < blockSize; x++) {
-                    for (int y = 0; y < blockSize; y++) {
+                for (int x = 0; x < blockSize - overlap; x++) {
+                    for (int y = 0; y < blockSize - overlap; y++) {
                         result.setRGB(x + (blockSize - overlap) * i, y + (blockSize - overlap) * j, tile.getRGB(x, y));
                     }
                 }
@@ -49,12 +47,14 @@ public class TextureSynthesis {
         for (int j = 0; j < rows; j++) {
             //Width - num of cols
             for (int i = 1; i < cols; i++) {
-                BufferedImage tile = patchArray[j][i];
-                for (int y = 0; y < blockSize; y++) {
+                BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, overlap, blockSize - overlap);
+                BufferedImage leftOverlap = patchArray[j][i - 1].getSubimage(blockSize - overlap, 0, overlap, blockSize - overlap);
+                double[] costPath = minErrBoundaryVerticalCut(currOverlap, leftOverlap);
+
+                for (int y = 0; y < blockSize - overlap; y++) {
                     for (int x = 0; x < overlap; x++) {
-                        double[][] costPath = minCostPath(patchArray[j][i - 1], tile, blockSize, overlap, 1);
-                        int rgb = getOverlapColor(patchArray[j][i - 1], tile, costPath, y, x, 1);
-                        result.setRGB(x + (blockSize - overlap) * i, y + (blockSize - overlap) * j, rgb);
+                        int rgb = getOverlapColorVertical(leftOverlap, currOverlap, costPath, y, x);
+                        result.setRGB(x + ((blockSize - overlap) * i), y + ((blockSize - overlap) * j), rgb);
                     }
                 }
             }
@@ -65,12 +65,14 @@ public class TextureSynthesis {
         for (int j = 1; j < rows; j++) {
             //Width - num of cols
             for (int i = 0; i < cols; i++) {
-                BufferedImage tile = patchArray[j][i];
+                BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, blockSize - overlap, overlap);
+                BufferedImage aboveOverlap = patchArray[j - 1][i].getSubimage(0, blockSize - overlap, blockSize - overlap, overlap);
+                double[] costPath = minErrBoundaryHorizontalCut(currOverlap, aboveOverlap);
+
                 for (int y = 0; y < overlap; y++) {
-                    for (int x = 0; x < blockSize; x++) {
-                        double[][] costPath = minCostPath(patchArray[j - 1][i], tile, overlap, blockSize, 2);
-                        int rgb = getOverlapColor(patchArray[j - 1][i], tile, costPath, y, x, 2);
-                        result.setRGB(x + (blockSize - overlap) * i, y + (blockSize - overlap) * j, rgb);
+                    for (int x = 0; x < blockSize - overlap; x++) {
+                        int rgb = getOverlapColorHorizontal(aboveOverlap, currOverlap, costPath, y, x);
+                        result.setRGB(x + ((blockSize - overlap) * i), y + ((blockSize - overlap)  * j), rgb);
                     }
                 }
             }
@@ -103,34 +105,20 @@ public class TextureSynthesis {
             Block block = new Block(originalImage, blockSize);
             sampleBlocks[i] = block.generateBlock();
 
-            //Find the error difference between genesis and samples
-            double errorNumLeft = 0;
-            double errorNumAbove = 0;
-
             //Iterate through the overlap (left to right) and compare the colors
             if (leftBlock != null) {
-                for (int block_i = 0; block_i < overlap; block_i++) {
-                    for (int block_j = 0; block_j < blockSize; block_j++) {
-                        int x = block_i + blockSize - overlap;
-                        errorNumLeft += calculateError(x, block_j, block_i, block_j, leftBlock, sampleBlocks[i]);
-                    }
-                }
+                BufferedImage leftBlockOverlap = leftBlock.getSubimage(blockSize - overlap, 0, overlap, blockSize);
+                BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, overlap, blockSize);
 
-                errorNumLeft /= overlap * blockSize;
-                errorLeft[i] = errorNumLeft;
+                errorLeft[i] = calculateTotalError(leftBlockOverlap, sampleBlockOverlap);
             }
 
             //Iterate through the overlap (top down) and compare the colors
             if (aboveBlock != null) {
-                for (int block_i = 0; block_i < overlap; block_i++) {
-                    for (int block_j = 0; block_j < blockSize; block_j++) {
-                        int y = block_i + blockSize - overlap;
-                        errorNumAbove += calculateError(block_j, y, block_j, block_i, aboveBlock, sampleBlocks[i]);
-                    }
-                }
+                BufferedImage aboveBlockOverlap = aboveBlock.getSubimage(0, blockSize - overlap, blockSize, overlap);
+                BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, blockSize, overlap);
 
-                errorNumAbove /= overlap * blockSize;
-                errorAbove[i] = errorNumAbove;
+                errorAbove[i] = calculateTotalError(aboveBlockOverlap, sampleBlockOverlap);
             }
         }
 
@@ -177,122 +165,150 @@ public class TextureSynthesis {
         b1 = genC.getBlue();
         b2 = exC.getBlue();
 
-        res = Math.pow(((r2 - r1) + (g2 - g1) + (b2 - b1)), 2);
-
-        res /= 5852.25;
+        res = Math.sqrt(Math.pow(r2 - r1, 2) + Math.pow(g2 - g1, 2) + Math.pow(b2 - b1, 2));
 
         return res;
     }
 
-    //Function that returns a 2D matrix of the cut region
-    private double[][] minCostPath(BufferedImage b1, BufferedImage b2, int height, int width, int side) {
-        double[][] errorArray = new double[height][width];
-        double[][] costArray = new double[height][width];
-        double[][] costPath = new double[height][width];
+    private double[][] getErrorSurface(BufferedImage b1, BufferedImage b2) {
+        int height = Math.min(b1.getHeight(), b2.getHeight());
+        int width = Math.min(b1.getWidth(), b2.getWidth());
+
+        double[][] errorSurface = new double[height][width];
 
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
-                int x = i;
-
-                if (side == 1) {
-                    x = i + blockSize - overlap;
-                    errorArray[j][i] = calculateError(x, j, i, j, b1, b2);
-                } else if (side == 2) {
-                    errorArray[j][i] = calculateError(x, j + blockSize - overlap, i, j, b1, b2);
-                } else {
-                    x = i + blockSize - overlap;
-                    errorArray[j][i] = calculateError(x, j + blockSize - overlap, i, j, b1, b2);
-                }
-                //Determine error
+                errorSurface[j][i] = calculateError(i, j, i, j, b1, b2);
             }
         }
 
-        costArray = findPath(errorArray);
-
-        //System.out.println(Arrays.deepToString(costArray));
-
-        int y = costArray.length - 1;
-        int x = costArray[0].length - 1;
-
-        costPath[y][x] = 1;
-
-        while (x >= 0 || y >= 0) {
-            //System.out.println("x: " + x + " y: " + y);
-            if (y > 0) {
-                if (x > 0) {
-                    if (costArray[y - 1][x] <= costArray[y][x - 1]) {
-                        costPath[y - 1][x] = 1;
-                        y--;
-                    }
-                } else {
-                    costPath[y - 1][x] = 1;
-                    y--;
-                }
-            }
-
-            if (x > 0) {
-                if (y > 0) {
-                    if (costArray[y - 1][x] >= costArray[y][x - 1]) {
-                        costPath[y][x - 1] = 1;
-                        x--;
-                    }
-                } else {
-                    costPath[y][x - 1] = 1;
-                    x--;
-                }
-            }
-
-            if (x == 0 && y == 0) {
-                costPath[x][y] = 1;
-                x--;
-                y--;
-            }
-        }
-
-        //Fill
-        for (int j = 0; j < costPath.length; j++) {
-            boolean flag = false;
-            for (int i = 0; i < costPath[0].length; i++) {
-                if (costPath[j][i] == 1)
-                    flag = true;
-
-                if (flag)
-                    costPath[j][i] = 1;
-            }
-        }
-
-        //System.out.println("DONE");
-        return costPath;
+        return errorSurface;
     }
 
-    private double[][] findPath(double[][] costMaze) {
-        double[][] result = new double[costMaze.length][costMaze[0].length];
-        for (int i = 0; i < result.length; i++) {
-            for (int j = 0; j < result[0].length; j++) {
-                result[i][j] = costMaze[i][j];
+    private double calculateTotalError(BufferedImage b1, BufferedImage b2) {
+        double[][] errorSurface = getErrorSurface(b1, b2);
+        double sum = 0;
 
-                if (i > 0 && j > 0) {
-                    result[i][j] += Math.min(result[i - 1][j], result[i][j - 1]);
-                } else if (i > 0) {
-                    result[i][j] += result[i - 1][j];
-                } else if (j > 0) {
-                    result[i][j] += result[i][j - 1];
-                }
+        for (int j = 0; j < errorSurface.length; j++) {
+            for (int i = 0; i < errorSurface[0].length; i++) {
+                sum += errorSurface[j][i];
             }
         }
 
-        return result;
+        return sum;
     }
 
-    private int getOverlapColor(BufferedImage b1, BufferedImage b2, double[][] costPath, int j, int i, int side) {
-        if (side == 1) {
-            if (costPath[j][i] == 1)
-                return b2.getRGB(i, j);
-            return b1.getRGB(i + (blockSize - overlap), j);
-        } else {
-            if (costPath[j][i] == 1)
-                return b1.getRGB(i, j + blockSize - overlap);
-            return b2.getRGB(i, j);
+    private double[] minErrBoundaryVerticalCut(BufferedImage b1, BufferedImage b2) {
+        int height = Math.min(b1.getHeight(), b2.getHeight());
+        int width = Math.min (b1.getWidth(), b2.getWidth());
+
+        double[][] errorSurface = getErrorSurface(b1, b2);
+
+        // calculate cumulative error
+        for (int j = 1; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                double left = (i > 0) ? errorSurface[j - 1][i - 1] : Double.MAX_VALUE;
+                double above = errorSurface[j - 1][i];
+                double right = (i < width - 1) ? errorSurface[j - 1][i + 1] : Double.MAX_VALUE;
+
+                errorSurface[j][i] = errorSurface[j][i] + Math.min(Math.min(left, above), right);
+            }
         }
+
+        // smallest error in the last row will be the cut
+        int minIndex = 0;
+        for (int i = 1; i < width; i++) {
+            if (errorSurface[height - 1][i] < errorSurface[height - 1][minIndex]) {
+                minIndex = i;
+            }
+        }
+
+        double[] path = new double[height];
+        path[height - 1] = minIndex;
+
+        for (int j = height - 2; j >= 0; j--) {
+            int left = minIndex - 1;
+            int right = minIndex + 1;
+
+            if (left >= 0) {
+                if (errorSurface[j][left] < errorSurface[j][minIndex]) {
+                    minIndex = left;
+                }
+            }
+
+            if (right < width) {
+                if (errorSurface[j][right] < errorSurface[j][minIndex]) {
+                    minIndex = right;
+                }
+            }
+
+            path[j] = minIndex;
+        }
+
+        return path;
+    }
+
+    private double[] minErrBoundaryHorizontalCut(BufferedImage b1, BufferedImage b2) {
+        int height = Math.min(b1.getHeight(), b2.getHeight());
+        int width = Math.min (b1.getWidth(), b2.getWidth());
+
+        double[][] errorSurface = getErrorSurface(b1, b2);
+
+        // calculate cumulative error
+        for (int i = 1; i < width; i++) {
+            for (int j = 0; j < height; j++) {
+                double up = (j > 0) ? errorSurface[j - 1][i - 1] : Double.MAX_VALUE;
+                double right = errorSurface[j][i - 1];
+                double down = (j < height - 1) ? errorSurface[j + 1][i - 1] : Double.MAX_VALUE;
+
+                errorSurface[j][i] = errorSurface[j][i] + Math.min(Math.min(up, right), down);
+            }
+        }
+
+        // smallest error in the last col will be the cut
+        int minIndex = 0;
+        for (int j = 1; j < height; j++) {
+            if (errorSurface[j][width - 1] < errorSurface[minIndex][width - 1]) {
+                minIndex = j;
+            }
+        }
+
+        double[] path = new double[width];
+        path[width - 1] = minIndex;
+
+        for (int i = width - 2; i >= 0; i--) {
+            int up = minIndex - 1;
+            int down = minIndex + 1;
+
+            if (up >= 0) {
+                if (errorSurface[up][i] < errorSurface[minIndex][i]) {
+                    minIndex = up;
+                }
+            }
+
+            if (down < height) {
+                if (errorSurface[down][i] < errorSurface[minIndex][i]) {
+                    minIndex = down;
+                }
+            }
+
+            path[i] = minIndex;
+        }
+
+        return path;
+    }
+
+    private int getOverlapColorVertical(BufferedImage b1, BufferedImage b2, double[] costPath, int y, int x) {
+        if (x > costPath[y]) {
+            return b2.getRGB(x, y);
+        }
+        return b1.getRGB(x, y);
+    }
+
+    private int getOverlapColorHorizontal(BufferedImage b1, BufferedImage b2, double[] costPath, int y, int x) {
+        if (y > costPath[x]) {
+            return b2.getRGB(x, y);
+        }
+        return b1.getRGB(x, y);
     }
 }

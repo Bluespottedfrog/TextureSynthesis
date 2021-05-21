@@ -81,14 +81,14 @@ class Main extends JFrame implements ActionListener {
         g.drawImage(originalImage, 25, 150, w, h, images);
 
         g.drawImage(patch, 50 + w, 150, patch.getWidth(), patch.getHeight(), images);
-        g.drawImage(noOverlap, 50 + w + patch.getWidth(), 150, noOverlap.getWidth(), noOverlap.getHeight(), images);
+        g.drawImage(noOverlap, 50 + w + 50 + patch.getWidth(), 150, noOverlap.getWidth(), noOverlap.getHeight(), images);
 
         g.setColor(Color.WHITE);
         Font f1 = new Font("Verdana", Font.PLAIN, 13);
         g.setFont(f1);
         g.drawString("Input Image", 25, 145);
         g.drawString("Output - Minimum Boundary Cut", 50 + w, 145);
-        g.drawString("Output - Sum of Squared Difference", 50 + w + patch.getWidth(), 145);
+        g.drawString("Output - Sum of Squared Difference", 50 + w + 50 + patch.getWidth(), 145);
         System.out.println("working");
     }
 
