@@ -7,7 +7,8 @@ public class TextureSynthesis {
     BufferedImage originalImage;
     BufferedImage[][] patchArray;
 
-    int blockSize;
+    int fullBlockSize;
+    int resultBlockSize;
     int overlap;
 
     public TextureSynthesis(BufferedImage originalImage, int blockSize) {
@@ -15,12 +16,13 @@ public class TextureSynthesis {
         rows = 10;
         cols = 10;
         patchArray = new BufferedImage[rows][cols];
-        this.blockSize = blockSize;
         overlap = blockSize / 6;
+        fullBlockSize = blockSize;
+        resultBlockSize = blockSize - overlap;
     }
 
     public BufferedImage generateNoFill() {
-        BufferedImage result = new BufferedImage((blockSize - overlap) * rows, (blockSize - overlap) * cols, originalImage.getType());
+        BufferedImage result = new BufferedImage(resultBlockSize * rows, resultBlockSize * cols, originalImage.getType());
         fillPatch();
 
         //Fill with everything
@@ -28,9 +30,9 @@ public class TextureSynthesis {
             //Width - num of cols
             for (int i = 0; i < cols; i++) {
                 BufferedImage tile = patchArray[j][i];
-                for (int x = 0; x < blockSize - overlap; x++) {
-                    for (int y = 0; y < blockSize - overlap; y++) {
-                        result.setRGB(x + (blockSize - overlap) * i, y + (blockSize - overlap) * j, tile.getRGB(x, y));
+                for (int x = 0; x < resultBlockSize; x++) {
+                    for (int y = 0; y < resultBlockSize; y++) {
+                        result.setRGB(x + resultBlockSize * i, y + resultBlockSize* j, tile.getRGB(x, y));
                     }
                 }
             }
@@ -47,14 +49,14 @@ public class TextureSynthesis {
         for (int j = 0; j < rows; j++) {
             //Width - num of cols
             for (int i = 1; i < cols; i++) {
-                BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, overlap, blockSize - overlap);
-                BufferedImage leftOverlap = patchArray[j][i - 1].getSubimage(blockSize - overlap, 0, overlap, blockSize - overlap);
+                BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, overlap, resultBlockSize);
+                BufferedImage leftOverlap = patchArray[j][i - 1].getSubimage(resultBlockSize, 0, overlap, resultBlockSize);
                 double[] costPath = minErrBoundaryVerticalCut(currOverlap, leftOverlap);
 
-                for (int y = 0; y < blockSize - overlap; y++) {
+                for (int y = 0; y < resultBlockSize; y++) {
                     for (int x = 0; x < overlap; x++) {
                         int rgb = getOverlapColorVertical(leftOverlap, currOverlap, costPath, y, x);
-                        result.setRGB(x + ((blockSize - overlap) * i), y + ((blockSize - overlap) * j), rgb);
+                        result.setRGB(x + resultBlockSize * i, y + resultBlockSize * j, rgb);
                     }
                 }
             }
@@ -65,14 +67,14 @@ public class TextureSynthesis {
         for (int j = 1; j < rows; j++) {
             //Width - num of cols
             for (int i = 0; i < cols; i++) {
-                BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, blockSize - overlap, overlap);
-                BufferedImage aboveOverlap = patchArray[j - 1][i].getSubimage(0, blockSize - overlap, blockSize - overlap, overlap);
+                BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, resultBlockSize, overlap);
+                BufferedImage aboveOverlap = patchArray[j - 1][i].getSubimage(0, resultBlockSize, resultBlockSize, overlap);
                 double[] costPath = minErrBoundaryHorizontalCut(currOverlap, aboveOverlap);
 
                 for (int y = 0; y < overlap; y++) {
-                    for (int x = 0; x < blockSize - overlap; x++) {
+                    for (int x = 0; x < resultBlockSize; x++) {
                         int rgb = getOverlapColorHorizontal(aboveOverlap, currOverlap, costPath, y, x);
-                        result.setRGB(x + ((blockSize - overlap) * i), y + ((blockSize - overlap)  * j), rgb);
+                        result.setRGB(x + resultBlockSize * i, y + resultBlockSize * j, rgb);
                     }
                 }
             }
@@ -100,23 +102,23 @@ public class TextureSynthesis {
         double[] errorAbove = new double[sampleSize];
         double[] errorAvg = new double[sampleSize];
 
-        //Fill an array of length sampleSize samples of blocks that could match the genesis
+        // Fill an array of length sampleSize samples of blocks that could match the genesis
         for (int i = 0; i < sampleSize; i++) {
-            Block block = new Block(originalImage, blockSize);
+            Block block = new Block(originalImage, fullBlockSize);
             sampleBlocks[i] = block.generateBlock();
 
-            //Iterate through the overlap (left to right) and compare the colors
+            // Compare horizontal overlap color difference
             if (leftBlock != null) {
-                BufferedImage leftBlockOverlap = leftBlock.getSubimage(blockSize - overlap, 0, overlap, blockSize);
-                BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, overlap, blockSize);
+                BufferedImage leftBlockOverlap = leftBlock.getSubimage(resultBlockSize, 0, overlap, fullBlockSize);
+                BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, overlap, fullBlockSize);
 
                 errorLeft[i] = calculateTotalError(leftBlockOverlap, sampleBlockOverlap);
             }
 
-            //Iterate through the overlap (top down) and compare the colors
+            // Compare vertical overlap color difference
             if (aboveBlock != null) {
-                BufferedImage aboveBlockOverlap = aboveBlock.getSubimage(0, blockSize - overlap, blockSize, overlap);
-                BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, blockSize, overlap);
+                BufferedImage aboveBlockOverlap = aboveBlock.getSubimage(0, resultBlockSize, fullBlockSize, overlap);
+                BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, fullBlockSize, overlap);
 
                 errorAbove[i] = calculateTotalError(aboveBlockOverlap, sampleBlockOverlap);
             }
@@ -200,7 +202,7 @@ public class TextureSynthesis {
 
     private double[] minErrBoundaryVerticalCut(BufferedImage b1, BufferedImage b2) {
         int height = Math.min(b1.getHeight(), b2.getHeight());
-        int width = Math.min (b1.getWidth(), b2.getWidth());
+        int width = Math.min(b1.getWidth(), b2.getWidth());
 
         double[][] errorSurface = getErrorSurface(b1, b2);
 
@@ -250,7 +252,7 @@ public class TextureSynthesis {
 
     private double[] minErrBoundaryHorizontalCut(BufferedImage b1, BufferedImage b2) {
         int height = Math.min(b1.getHeight(), b2.getHeight());
-        int width = Math.min (b1.getWidth(), b2.getWidth());
+        int width = Math.min(b1.getWidth(), b2.getWidth());
 
         double[][] errorSurface = getErrorSurface(b1, b2);
 
