@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Texturize Me | Home </title>
+    <link rel="stylesheet" href="style.css">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="utf-8">
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+      <div class="header">
+          <div class="header-logo" >
+            <a href="index.html"><img src="res/logo.svg"></a>
+          </div>
+          <div class="header-main-content">
+            <a href="#about"><h4 class="header_content"> about </h4></a>
+            <a href="#contact"><h4 class="header_content"> contact </h4></a>
+            <a href="texture_transfer.html"><h4 class="button"> try it! </h4></a>
+          </div>
+
+      </div>
+    <!-- ./HEADER -->
+
+    <!-- WRAPPER -->
+    <div class="wrapper">
+
+      <!-- HERO -->
+      <div style="margin-top: 56px; background-image:url('res/wavebg.png'); background-size: cover;" class="container hero">
+
+        <div>
+          <img style="mix-blend-mode: darken;" src="res/face.png">
+          <img style="mix-blend-mode: darken;" src="res/bread.png">
+        </div>
+
+        <h1>Texturize Me</h1>
+        <p> Turn any image into a work of art with the click of a button </p>
+        <div class="button-wrapper">
+          <a href="texture_transfer.html"><h4 class="button"> try it! </h4></a>
+        </div>
+
+        <p> See More </p>
+
+      </div>
+      <!-- ./HERO -->
+
+      <!-- EXAMPLES CONTAINER -->
+      <div class="container col align-center">
+        <div class="grid-container">
+          <h3>Examples</h3>
+          <div class="grid">
+            <a class="grid-item item-1"></a>
+            <a class="grid-item item-1"></a>
+            <a class="grid-item item-3"></a>
+            <a class="grid-item item-2"></a>
+            <a class="grid-item item-2"></a>
+            <a class="grid-item item-1"></a>
+            <a class="grid-item item-2"></a>
+            <a class="grid-item item-1"></a>
+            <a class="grid-item item-1"></a>
+            <a class="grid-item item-1"></a>
+          </div>
+        </div>
+      </div>
+      <!-- ./EXAMPLES CONTAINER-->
+
+      <!-- ABOUT CONTAINER -->
+      <div id="about" class="container half col" style="background-image: url('res/quiltbg.png'); background-size: cover; background-repeat: no-repeat;">
+        <div style="width: 80%;">
+        <h2>About</h2>
+        <p>The method used to achieve this effect was initially proposed in a paper titled <a href=""><b>Image Quilting
+          for Texture Synthesis and Transfer</b></a>, written by Alexei A. Efros and William T. Freeman.
+          This website gives you the power of Texture Transfer to your heart’s desire!</p>
+
+        </div>
+      </div>
+      <!-- ./ABOUT CONTAINER-->
+
+      <!-- CONTACT CONTAINER -->
+      <div id="contact" class="container full row justify-center align-center ">
+        <div class="row">
+
+          <div class="col">
+            <h2>Have burning <br> questions? Let's<br> Chat!</h2>
+            <img class="hidden" src="res/FingerPoint_2.png">
+          </div>
+
+        <form>
+          <input type="text" placeholder="Your name">
+          <input type="text" placeholder="Your e-mail">
+          <textarea rows="15" cols="70" type="text" placeholder="Your message"></textarea>
+          <div class="button-wrapper">
+            <input class="button" type="submit" value="Submit">
+          </div>
+        </form>
+
+      </div>
+
+      </div>
+      <div class="footer">
+        <p>Developed with love from Thomas and Aaron</p>
+      </div>
+      <!-- ./CONTACT CONTAINER-->
+
+    </div>
+    <!-- ./WRAPPER -->
+    <script src="scripts.js"></script>
+  </body>
+
+</html>
