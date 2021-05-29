@@ -3,16 +3,19 @@ import java.awt.image.BufferedImage;
 
 public class TextureSynthesis {
 
-    int rows, cols;
-    BufferedImage originalImage;
+    BufferedImage src;
+    BufferedImage target;
     BufferedImage[][] patchArray;
 
+    int rows, cols;
     int fullBlockSize;
     int resultBlockSize;
     int overlap;
 
-    public TextureSynthesis(BufferedImage originalImage, int blockSize) {
-        this.originalImage = originalImage;
+    double alpha; // parameter to determine the tradeoff between texture synth and target correspondence map
+
+    public TextureSynthesis(BufferedImage src, int blockSize) {
+        this.src = src;
         rows = 10;
         cols = 10;
         patchArray = new BufferedImage[rows][cols];
@@ -21,8 +24,16 @@ public class TextureSynthesis {
         resultBlockSize = blockSize - overlap;
     }
 
+    public TextureSynthesis(BufferedImage src, BufferedImage target) {
+        this.src = src;
+        this.target = target;
+        // TODO: Determinate rows and cols dynamically?
+
+        alpha = 0.8;
+    }
+
     public BufferedImage generateNoFill() {
-        BufferedImage result = new BufferedImage(resultBlockSize * rows, resultBlockSize * cols, originalImage.getType());
+        BufferedImage result = new BufferedImage(resultBlockSize * rows, resultBlockSize * cols, src.getType());
         fillPatch();
 
         //Fill with everything
@@ -91,28 +102,53 @@ public class TextureSynthesis {
                 BufferedImage leftBlock = (i > 0) ? patchArray[j][i - 1] : null;
                 BufferedImage aboveBlock = (j > 0) ? patchArray[j - 1][i] : null;
 
-                patchArray[j][i] = matchBlock(leftBlock, aboveBlock, sampleSize);
+                patchArray[j][i] = generateBlock(leftBlock, aboveBlock, sampleSize, j, i);
             }
         }
     }
 
-    private BufferedImage matchBlock(BufferedImage leftBlock, BufferedImage aboveBlock, int sampleSize) {
+    private void fillPatch(int iteration) {
+        int sampleSize = 100;
+
+        fullBlockSize = 729 / (3 * iteration);
+        overlap = fullBlockSize / 6;
+        resultBlockSize = fullBlockSize - overlap;
+
+        int rows = (int) Math.ceil((double) target.getHeight() / fullBlockSize);
+        int cols = (int) Math.ceil((double) target.getWidth() / fullBlockSize);
+
+        patchArray = new BufferedImage[rows][cols];
+
+        for (int j = 0; j < rows; j++) {
+            for (int i = 0; i < cols; i++) {
+                BufferedImage leftBlock = (i > 0) ? patchArray[j][i - 1] : null;
+                BufferedImage aboveBlock = (j > 0) ? patchArray[j - 1][i] : null;
+
+                patchArray[j][i] = generateBlock(leftBlock, aboveBlock, sampleSize, j, i);
+            }
+        }
+    }
+
+    private BufferedImage generateBlock(BufferedImage leftBlock, BufferedImage aboveBlock, int sampleSize, int y, int x) {
         BufferedImage[] sampleBlocks = new BufferedImage[sampleSize];
-        double[] errorLeft = new double[sampleSize];
-        double[] errorAbove = new double[sampleSize];
-        double[] errorAvg = new double[sampleSize];
+        double[] synthErr = new double[sampleSize];
+        double[] correspondenceErr = new double[sampleSize];
 
         // Fill an array of length sampleSize samples of blocks that could match the genesis
         for (int i = 0; i < sampleSize; i++) {
-            Block block = new Block(originalImage, fullBlockSize);
+            Block block = new Block(src, fullBlockSize);
             sampleBlocks[i] = block.generateBlock();
+
+            double errorLeft = 0;
+            double errorAbove = 0;
 
             // Compare horizontal overlap color difference
             if (leftBlock != null) {
                 BufferedImage leftBlockOverlap = leftBlock.getSubimage(resultBlockSize, 0, overlap, fullBlockSize);
                 BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, overlap, fullBlockSize);
 
-                errorLeft[i] = calculateTotalError(leftBlockOverlap, sampleBlockOverlap);
+                errorLeft = calculateTotalSynthError(leftBlockOverlap, sampleBlockOverlap);
+                synthErr[i] = errorLeft;
             }
 
             // Compare vertical overlap color difference
@@ -120,38 +156,28 @@ public class TextureSynthesis {
                 BufferedImage aboveBlockOverlap = aboveBlock.getSubimage(0, resultBlockSize, fullBlockSize, overlap);
                 BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, fullBlockSize, overlap);
 
-                errorAbove[i] = calculateTotalError(aboveBlockOverlap, sampleBlockOverlap);
+                errorAbove = calculateTotalSynthError(aboveBlockOverlap, sampleBlockOverlap);
+                synthErr[i] = errorAbove;
             }
-        }
 
-        if (leftBlock != null && aboveBlock != null) {
-            for (int i = 0; i < errorAvg.length; i++) {
-                errorAvg[i] = (errorLeft[i] + errorAbove[i]) / 2;
+            // Calculate correspondence error with target image
+            if (leftBlock != null && aboveBlock != null) {
+                synthErr[i] = (errorLeft + errorAbove) / 2;
             }
         }
 
         int index = 0;
         //Find the block that is the best match based on error
         for (int i = 0; i < sampleBlocks.length; i++) {
-            if (leftBlock != null && aboveBlock == null) {
-                if (errorLeft[i] < errorLeft[index]) {
-                    index = i;
-                }
-            } else if (leftBlock == null && aboveBlock != null) {
-                if (errorAbove[i] < errorAbove[index]) {
-                    index = i;
-                }
-            } else {
-                if (errorAvg[i] < errorAvg[index]) {
-                    index = i;
-                }
+            if (synthErr[i] < synthErr[index]) {
+                index = i;
             }
         }
 
         return sampleBlocks[index];
     }
 
-    private double calculateError(int x, int y, int x2, int y2, BufferedImage genesis, BufferedImage sample) {
+    private double calculateSynthError(int x, int y, int x2, int y2, BufferedImage genesis, BufferedImage sample) {
         double res;
         Color genC = new Color(genesis.getRGB(x, y));
         Color exC = new Color(sample.getRGB(x2, y2));
@@ -172,7 +198,7 @@ public class TextureSynthesis {
         return res;
     }
 
-    private double[][] getErrorSurface(BufferedImage b1, BufferedImage b2) {
+    private double[][] getSynthErrorSurface(BufferedImage b1, BufferedImage b2) {
         int height = Math.min(b1.getHeight(), b2.getHeight());
         int width = Math.min(b1.getWidth(), b2.getWidth());
 
@@ -180,15 +206,15 @@ public class TextureSynthesis {
 
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
-                errorSurface[j][i] = calculateError(i, j, i, j, b1, b2);
+                errorSurface[j][i] = calculateSynthError(i, j, i, j, b1, b2);
             }
         }
 
         return errorSurface;
     }
 
-    private double calculateTotalError(BufferedImage b1, BufferedImage b2) {
-        double[][] errorSurface = getErrorSurface(b1, b2);
+    private double calculateTotalSynthError(BufferedImage b1, BufferedImage b2) {
+        double[][] errorSurface = getSynthErrorSurface(b1, b2);
         double sum = 0;
 
         for (int j = 0; j < errorSurface.length; j++) {
@@ -200,11 +226,15 @@ public class TextureSynthesis {
         return sum;
     }
 
+    private double calculateLuminance(int r, int g, int b) {
+        return 0.2126 * r + 0.7152 * b + 0.0722 * b;
+    }
+
     private double[] minErrBoundaryVerticalCut(BufferedImage b1, BufferedImage b2) {
         int height = Math.min(b1.getHeight(), b2.getHeight());
         int width = Math.min(b1.getWidth(), b2.getWidth());
 
-        double[][] errorSurface = getErrorSurface(b1, b2);
+        double[][] errorSurface = getSynthErrorSurface(b1, b2);
 
         // calculate cumulative error
         for (int j = 1; j < height; j++) {
@@ -254,7 +284,7 @@ public class TextureSynthesis {
         int height = Math.min(b1.getHeight(), b2.getHeight());
         int width = Math.min(b1.getWidth(), b2.getWidth());
 
-        double[][] errorSurface = getErrorSurface(b1, b2);
+        double[][] errorSurface = getSynthErrorSurface(b1, b2);
 
         // calculate cumulative error
         for (int i = 1; i < width; i++) {

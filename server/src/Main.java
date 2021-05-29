@@ -89,7 +89,6 @@ class Main extends JFrame implements ActionListener {
         g.drawString("Input Image", 25, 145);
         g.drawString("Output - Minimum Boundary Cut", 50 + w, 145);
         g.drawString("Output - Sum of Squared Difference", 50 + w + 50 + patch.getWidth(), 145);
-        System.out.println("working");
     }
 
 // =======================================================
