@@ -27,8 +27,6 @@ public class TextureSynthesis {
     public TextureSynthesis(BufferedImage src, BufferedImage target) {
         this.src = src;
         this.target = target;
-        // TODO: Determinate rows and cols dynamically?
-
         alpha = 0.8;
     }
 
@@ -102,7 +100,7 @@ public class TextureSynthesis {
                 BufferedImage leftBlock = (i > 0) ? patchArray[j][i - 1] : null;
                 BufferedImage aboveBlock = (j > 0) ? patchArray[j - 1][i] : null;
 
-                patchArray[j][i] = generateBlock(leftBlock, aboveBlock, sampleSize, j, i);
+                patchArray[j][i] = generateBlock(leftBlock, aboveBlock, sampleSize, i, j);
             }
         }
     }
@@ -124,15 +122,17 @@ public class TextureSynthesis {
                 BufferedImage leftBlock = (i > 0) ? patchArray[j][i - 1] : null;
                 BufferedImage aboveBlock = (j > 0) ? patchArray[j - 1][i] : null;
 
-                patchArray[j][i] = generateBlock(leftBlock, aboveBlock, sampleSize, j, i);
+                patchArray[j][i] = generateBlock(leftBlock, aboveBlock, sampleSize, i, j);
             }
         }
     }
 
-    private BufferedImage generateBlock(BufferedImage leftBlock, BufferedImage aboveBlock, int sampleSize, int y, int x) {
+    private BufferedImage generateBlock(BufferedImage leftBlock, BufferedImage aboveBlock, int sampleSize, int x, int y) {
         BufferedImage[] sampleBlocks = new BufferedImage[sampleSize];
-        double[] synthErr = new double[sampleSize];
-        double[] correspondenceErr = new double[sampleSize];
+        double[] err = new double[sampleSize];
+
+        BufferedImage targetArea = target.getSubimage(x, y, fullBlockSize, fullBlockSize);
+        double[][] targetCorrespondenceMap = createCorrespondenceMap(targetArea);
 
         // Fill an array of length sampleSize samples of blocks that could match the genesis
         for (int i = 0; i < sampleSize; i++) {
@@ -148,7 +148,7 @@ public class TextureSynthesis {
                 BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, overlap, fullBlockSize);
 
                 errorLeft = calculateTotalSynthError(leftBlockOverlap, sampleBlockOverlap);
-                synthErr[i] = errorLeft;
+                err[i] = errorLeft;
             }
 
             // Compare vertical overlap color difference
@@ -157,24 +157,61 @@ public class TextureSynthesis {
                 BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, fullBlockSize, overlap);
 
                 errorAbove = calculateTotalSynthError(aboveBlockOverlap, sampleBlockOverlap);
-                synthErr[i] = errorAbove;
+                err[i] = errorAbove;
+            }
+
+            if (leftBlock != null && aboveBlock != null) {
+                err[i] = (errorLeft + errorAbove) / 2;
             }
 
             // Calculate correspondence error with target image
-            if (leftBlock != null && aboveBlock != null) {
-                synthErr[i] = (errorLeft + errorAbove) / 2;
-            }
+            double[][] sampleBlockCorrespondenceMap = createCorrespondenceMap(sampleBlocks[i]);
+            double corrErr = calculateCorrespondenceErr(sampleBlockCorrespondenceMap, targetCorrespondenceMap);
+
+            err[i] = alpha * err[i] + (1 - alpha) * corrErr;
         }
 
         int index = 0;
         //Find the block that is the best match based on error
         for (int i = 0; i < sampleBlocks.length; i++) {
-            if (synthErr[i] < synthErr[index]) {
+            if (err[i] < err[index]) {
                 index = i;
             }
         }
 
         return sampleBlocks[index];
+    }
+
+    private double calculateLuminance(int r, int g, int b) {
+        return 0.2126 * r + 0.7152 * b + 0.0722 * b;
+    }
+
+    private double[][] createCorrespondenceMap(BufferedImage src) {
+        double[][] result = new double[src.getHeight()][src.getWidth()];
+
+        for (int y = 0; y < src.getHeight(); y++) {
+            for (int x = 0; x < src.getWidth(); x++) {
+                Color c = new Color(src.getRGB(x, y));
+                result[y][x] = calculateLuminance(c.getRed(), c.getGreen(), c.getBlue());
+            }
+        }
+
+        return result;
+    }
+
+    private double calculateCorrespondenceErr(double[][] m1, double[][] m2) {
+        double totalErr = 0;
+
+        int height = Math.min(m1.length, m2.length);
+        int width = Math.min(m1[0].length, m2[0].length);
+
+        for (int j = 0; j < height; j++) {
+            for (int i = 0; i < width; i++) {
+                totalErr += Math.sqrt(Math.pow(m1[j][i] - m2[j][i], 2));
+            }
+        }
+
+        return totalErr;
     }
 
     private double calculateSynthError(int x, int y, int x2, int y2, BufferedImage genesis, BufferedImage sample) {
@@ -224,10 +261,6 @@ public class TextureSynthesis {
         }
 
         return sum;
-    }
-
-    private double calculateLuminance(int r, int g, int b) {
-        return 0.2126 * r + 0.7152 * b + 0.0722 * b;
     }
 
     private double[] minErrBoundaryVerticalCut(BufferedImage b1, BufferedImage b2) {
