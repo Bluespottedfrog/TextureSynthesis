@@ -106,18 +106,21 @@ class Main extends JFrame implements ActionListener {
         try {
             blockTexture = ImageIO.read(file);
             originalImage = ImageIO.read(file);
+            BufferedImage targetImage = ImageIO.read(getClass().getResource("/backgroundImage.jpg"));
+
+            width = originalImage.getWidth();
+            height = originalImage.getHeight();
+
+            test = new TextureSynthesis(blockTexture, targetImage);
+            patch = test.generateTexture();
+            noOverlap = test.generateNoFill();
+            repaint();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
             e1.printStackTrace();
         }
 
-        width = originalImage.getWidth();
-        height = originalImage.getHeight();
 
-        test = new TextureSynthesis(blockTexture, 50);
-        patch = test.generateTexture();
-        noOverlap = test.generateNoFill();
-        repaint();
     }
 
 

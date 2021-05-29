@@ -17,7 +17,7 @@ public class Block {
         endH = Math.min(startH + blockSize, src.getHeight());
     }
 
-    public BufferedImage generateBlock() {
+    public BufferedImage getBlock() {
         BufferedImage result = new BufferedImage(endW - startW, endH - startH, src.getType());
 
         for (int i = 0; i < endW - startW; i++) {

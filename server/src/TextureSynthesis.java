@@ -14,16 +14,6 @@ public class TextureSynthesis {
 
     double alpha; // parameter to determine the tradeoff between texture synth and target correspondence map
 
-    public TextureSynthesis(BufferedImage src, int blockSize) {
-        this.src = src;
-        rows = 10;
-        cols = 10;
-        patchArray = new BufferedImage[rows][cols];
-        overlap = blockSize / 6;
-        fullBlockSize = blockSize;
-        resultBlockSize = blockSize - overlap;
-    }
-
     public TextureSynthesis(BufferedImage src, BufferedImage target) {
         this.src = src;
         this.target = target;
@@ -31,8 +21,8 @@ public class TextureSynthesis {
     }
 
     public BufferedImage generateNoFill() {
-        BufferedImage result = new BufferedImage(resultBlockSize * rows, resultBlockSize * cols, src.getType());
-        fillPatch();
+        fillPatch(1);
+        BufferedImage result = new BufferedImage(resultBlockSize * cols, resultBlockSize * rows, src.getType());
 
         //Fill with everything
         for (int j = 0; j < rows; j++) {
@@ -92,28 +82,16 @@ public class TextureSynthesis {
         return result;
     }
 
-    private void fillPatch() {
-        int sampleSize = 100;
-
-        for (int j = 0; j < rows; j++) {
-            for (int i = 0; i < cols; i++) {
-                BufferedImage leftBlock = (i > 0) ? patchArray[j][i - 1] : null;
-                BufferedImage aboveBlock = (j > 0) ? patchArray[j - 1][i] : null;
-
-                patchArray[j][i] = generateBlock(leftBlock, aboveBlock, sampleSize, i, j);
-            }
-        }
-    }
-
     private void fillPatch(int iteration) {
         int sampleSize = 100;
 
-        fullBlockSize = 729 / (3 * iteration);
+        // TODO: Want to make block size dynamically change based on target image
+        fullBlockSize = 10;
         overlap = fullBlockSize / 6;
         resultBlockSize = fullBlockSize - overlap;
 
-        int rows = (int) Math.ceil((double) target.getHeight() / fullBlockSize);
-        int cols = (int) Math.ceil((double) target.getWidth() / fullBlockSize);
+        rows = (int) Math.ceil((double) target.getHeight() / fullBlockSize);
+        cols = (int) Math.ceil((double) target.getWidth() / fullBlockSize);
 
         patchArray = new BufferedImage[rows][cols];
 
@@ -137,7 +115,7 @@ public class TextureSynthesis {
         // Fill an array of length sampleSize samples of blocks that could match the genesis
         for (int i = 0; i < sampleSize; i++) {
             Block block = new Block(src, fullBlockSize);
-            sampleBlocks[i] = block.generateBlock();
+            sampleBlocks[i] = block.getBlock();
 
             double errorLeft = 0;
             double errorAbove = 0;
