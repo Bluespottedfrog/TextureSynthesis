@@ -20,7 +20,6 @@ class Main extends JFrame implements ActionListener {
     BufferedImage originalImage;
 
     BufferedImage patch;
-    BufferedImage noOverlap;
 
     TextureSynthesis test;
     String filepath;
@@ -81,14 +80,12 @@ class Main extends JFrame implements ActionListener {
         g.drawImage(originalImage, 25, 150, w, h, images);
 
         g.drawImage(patch, 50 + w, 150, patch.getWidth(), patch.getHeight(), images);
-        g.drawImage(noOverlap, 50 + w + 50 + patch.getWidth(), 150, noOverlap.getWidth(), noOverlap.getHeight(), images);
 
         g.setColor(Color.WHITE);
         Font f1 = new Font("Verdana", Font.PLAIN, 13);
         g.setFont(f1);
         g.drawString("Input Image", 25, 145);
         g.drawString("Output - Minimum Boundary Cut", 50 + w, 145);
-        g.drawString("Output - Sum of Squared Difference", 50 + w + 50 + patch.getWidth(), 145);
     }
 
 // =======================================================
@@ -106,14 +103,14 @@ class Main extends JFrame implements ActionListener {
         try {
             blockTexture = ImageIO.read(file);
             originalImage = ImageIO.read(file);
-            BufferedImage targetImage = ImageIO.read(getClass().getResource("/backgroundImage.jpg"));
+            // TODO: Hardcoded targetImage for now
+            BufferedImage targetImage = ImageIO.read(getClass().getResource("/lincoin"));
 
             width = originalImage.getWidth();
             height = originalImage.getHeight();
 
             test = new TextureSynthesis(blockTexture, targetImage);
             patch = test.generateTexture();
-            noOverlap = test.generateNoFill();
             repaint();
         } catch (IOException e1) {
             // TODO Auto-generated catch block
