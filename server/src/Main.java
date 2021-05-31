@@ -88,8 +88,6 @@ class Main extends JFrame implements ActionListener {
         g.drawString("Output - Minimum Boundary Cut", 50 + w, 145);
     }
 
-// =======================================================
-
     public static void main(String[] args) {
         //instantiate this object
         Main img = new Main();
@@ -142,5 +140,3 @@ class Main extends JFrame implements ActionListener {
         }
     }
 }
-
-// =======================================================//
