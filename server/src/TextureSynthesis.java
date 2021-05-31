@@ -1,12 +1,15 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.ColorModel;
+import java.awt.image.WritableRaster;
 
 public class TextureSynthesis {
 
-    final int TOTAL_ITERATIONS = 3;
+final int TOTAL_ITERATIONS = 3;
 
     BufferedImage src;
     BufferedImage target;
+    BufferedImage prevResult;
     BufferedImage[][] patchArray;
 
     int rows, cols;
@@ -16,12 +19,19 @@ public class TextureSynthesis {
 
     double alpha; // parameter to determine the tradeoff between texture synth and target correspondence map
 
+    static BufferedImage deepCopy(BufferedImage bi) {
+        ColorModel cm = bi.getColorModel();
+        boolean isAlphaPremultiplied = cm.isAlphaPremultiplied();
+        WritableRaster raster = bi.copyData(null);
+        return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
+    }
+
     public TextureSynthesis(BufferedImage src, BufferedImage target) {
         this.src = src;
         this.target = target;
     }
 
-    public BufferedImage generateNoFill(int iteration) {
+    public BufferedImage drawPatches(int iteration) {
         fillPatch(iteration);
         BufferedImage result = new BufferedImage(resultBlockSize * cols, resultBlockSize * rows, src.getType());
 
@@ -44,8 +54,8 @@ public class TextureSynthesis {
     public BufferedImage generateTexture() {
         BufferedImage result = null;
         for (int iteration = 0; iteration < TOTAL_ITERATIONS; iteration++) {
-            result = generateNoFill(iteration);
             alpha = 0.8 * ((double) iteration / TOTAL_ITERATIONS) + 0.1;
+            result = drawPatches(iteration);
 
             //Fill horizontal overlap
             //Height - num of rows
@@ -82,6 +92,8 @@ public class TextureSynthesis {
                     }
                 }
             }
+
+            prevResult = deepCopy(result);
         }
 
         return result;
@@ -90,9 +102,9 @@ public class TextureSynthesis {
     private void fillPatch(int iteration) {
         int sampleSize = 100;
 
-        // TODO: Want to make block size dynamically change based on target image
+        // TODO: Try tweaking block size, maybe off image size?
         int denom = (iteration == 0) ? 1 : 3 * iteration;
-        fullBlockSize =  (16 * 3 * TOTAL_ITERATIONS) / denom;
+        fullBlockSize =  (6 * 3 * TOTAL_ITERATIONS) / denom;
         overlap = fullBlockSize / 6;
         resultBlockSize = fullBlockSize - overlap;
 
@@ -115,7 +127,9 @@ public class TextureSynthesis {
         BufferedImage[] sampleBlocks = new BufferedImage[sampleSize];
         double[] err = new double[sampleSize];
 
-        BufferedImage targetArea = target.getSubimage(x, y, fullBlockSize, fullBlockSize);
+        int targetWidth = (x * fullBlockSize + fullBlockSize > target.getWidth()) ? target.getWidth() - x * fullBlockSize : fullBlockSize;
+        int targetHeight = (y * fullBlockSize + fullBlockSize > target.getHeight()) ? target.getHeight() - y * fullBlockSize : fullBlockSize;
+        BufferedImage targetArea = target.getSubimage(x * fullBlockSize, y * fullBlockSize, targetWidth, targetHeight);
         double[][] targetCorrespondenceMap = createCorrespondenceMap(targetArea);
 
         // Fill an array of length sampleSize samples of blocks that could match the genesis
@@ -148,6 +162,13 @@ public class TextureSynthesis {
                 err[i] = (errorLeft + errorAbove) / 2;
             }
 
+            if (prevResult != null && x * resultBlockSize < prevResult.getWidth() && y * resultBlockSize < prevResult.getHeight()) {
+                int prevWidth = (x * resultBlockSize + resultBlockSize > prevResult.getWidth()) ? prevResult.getWidth() - x * resultBlockSize : resultBlockSize;
+                int prevHeight = (y * resultBlockSize + resultBlockSize > prevResult.getHeight()) ? prevResult.getHeight() - y * resultBlockSize : resultBlockSize;
+                BufferedImage prevResultBlock = prevResult.getSubimage(x * resultBlockSize, y * resultBlockSize, prevWidth, prevHeight);
+                err[i] += calculateTotalSynthError(sampleBlocks[i], prevResultBlock);
+            }
+
             // Calculate correspondence error with target image
             double[][] sampleBlockCorrespondenceMap = createCorrespondenceMap(sampleBlocks[i]);
             double corrErr = calculateCorrespondenceErr(sampleBlockCorrespondenceMap, targetCorrespondenceMap);
@@ -167,7 +188,7 @@ public class TextureSynthesis {
     }
 
     private double calculateLuminance(int r, int g, int b) {
-        return 0.2126 * r + 0.7152 * b + 0.0722 * b;
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
 
     private double[][] createCorrespondenceMap(BufferedImage src) {
@@ -191,7 +212,7 @@ public class TextureSynthesis {
 
         for (int j = 0; j < height; j++) {
             for (int i = 0; i < width; i++) {
-                totalErr += Math.sqrt(Math.pow(m1[j][i] - m2[j][i], 2));
+                totalErr += Math.pow(m1[j][i] - m2[j][i], 2);
             }
         }
 
