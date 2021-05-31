@@ -21,7 +21,7 @@ class Main extends JFrame implements ActionListener {
 
     BufferedImage patch;
 
-    TextureSynthesis test;
+    TextureTransfer test;
     String filepath;
 
     int width; // width of the image
@@ -109,7 +109,7 @@ class Main extends JFrame implements ActionListener {
             width = originalImage.getWidth();
             height = originalImage.getHeight();
 
-            test = new TextureSynthesis(blockTexture, targetImage);
+            test = new TextureTransfer(blockTexture, targetImage);
             patch = test.generateTexture();
             repaint();
         } catch (IOException e1) {

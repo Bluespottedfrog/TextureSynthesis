@@ -3,9 +3,9 @@ import java.awt.image.BufferedImage;
 import java.awt.image.ColorModel;
 import java.awt.image.WritableRaster;
 
-public class TextureSynthesis {
+public class TextureTransfer {
 
-final int TOTAL_ITERATIONS = 3;
+    final int TOTAL_ITERATIONS = 3;
 
     BufferedImage src;
     BufferedImage target;
@@ -26,7 +26,7 @@ final int TOTAL_ITERATIONS = 3;
         return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 
-    public TextureSynthesis(BufferedImage src, BufferedImage target) {
+    public TextureTransfer(BufferedImage src, BufferedImage target) {
         this.src = src;
         this.target = target;
     }
@@ -42,7 +42,7 @@ final int TOTAL_ITERATIONS = 3;
                 BufferedImage tile = patchArray[j][i];
                 for (int x = 0; x < resultBlockSize; x++) {
                     for (int y = 0; y < resultBlockSize; y++) {
-                        result.setRGB(x + resultBlockSize * i, y + resultBlockSize* j, tile.getRGB(x, y));
+                        result.setRGB(x + resultBlockSize * i, y + resultBlockSize * j, tile.getRGB(x, y));
                     }
                 }
             }
@@ -104,7 +104,7 @@ final int TOTAL_ITERATIONS = 3;
 
         // TODO: Try tweaking block size, maybe off image size?
         int denom = (iteration == 0) ? 1 : 3 * iteration;
-        fullBlockSize =  (6 * 3 * TOTAL_ITERATIONS) / denom;
+        fullBlockSize = (6 * 3 * TOTAL_ITERATIONS) / denom;
         overlap = fullBlockSize / 6;
         resultBlockSize = fullBlockSize - overlap;
 
