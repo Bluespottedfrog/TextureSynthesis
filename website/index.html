@@ -5,6 +5,7 @@
     <link rel="stylesheet" href="style.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="shortcut icon" href="res/logo.svg">
     <meta charset="utf-8">
   </head>
 
@@ -12,6 +13,7 @@
 
     <!-- HEADER -->
       <div class="header">
+
           <div class="header-logo" >
             <a href="index.html"><img src="res/logo.svg"></a>
           </div>
@@ -28,28 +30,37 @@
     <div class="wrapper">
 
       <!-- HERO -->
-      <div style="margin-top: 56px; background-image:url('res/wavebg.png'); background-size: cover;" class="container hero">
+      <div style="background-image:url('res/wavebg.png'); background-size: cover;" class="container hero">
+        <div class="heroGrid" style="margin-top: 120px;"></div>
 
-        <div>
+        <div class="hero_img" >
           <img style="mix-blend-mode: darken;" src="res/face.png">
           <img style="mix-blend-mode: darken;" src="res/bread.png">
         </div>
 
-        <h1>Texturize Me</h1>
+        <h1 class="ani">
+          <span class="text-wrapper">
+            <span class="letters">Texturize Me</span>
+          </span>
+        </h1>
+
         <p> Turn any image into a work of art with the click of a button </p>
         <div class="button-wrapper">
           <a href="texture_transfer.html"><h4 class="button"> try it! </h4></a>
         </div>
 
-        <p> See More </p>
-
+        <a href="#examples"><p> See More </p></a>
+        <div class="arrows" >
+          <ion-icon class="down" name="chevron-down-outline"></ion-icon>
+        </div>
       </div>
       <!-- ./HERO -->
 
       <!-- EXAMPLES CONTAINER -->
-      <div class="container col align-center">
+      <div id="examples" class="container col align-center">
+
         <div class="grid-container">
-          <h3>Examples</h3>
+          <h3 class="fadein fadein-1">Examples</h3>
           <div class="grid">
             <a class="grid-item item-1"></a>
             <a class="grid-item item-1"></a>
@@ -63,17 +74,18 @@
             <a class="grid-item item-1"></a>
           </div>
         </div>
+
       </div>
       <!-- ./EXAMPLES CONTAINER-->
 
       <!-- ABOUT CONTAINER -->
       <div id="about" class="container half col" style="background-image: url('res/quiltbg.png'); background-size: cover; background-repeat: no-repeat;">
         <div style="width: 80%;">
-        <h2>About</h2>
-        <p>The method used to achieve this effect was initially proposed in a paper titled <a href=""><b>Image Quilting
-          for Texture Synthesis and Transfer</b></a>, written by Alexei A. Efros and William T. Freeman.
-          This website gives you the power of Texture Transfer to your heart’s desire!</p>
-
+          <h2 class="fadein fadein-2">About</h2>
+          <p style="width: 50%;">The method used to achieve this effect was initially proposed in a paper titled <a href=""><b>Image Quilting
+            for Texture Synthesis and Transfer</b></a>, written by Alexei A. Efros and William T. Freeman.
+            This website gives you the power of Texture Transfer to your heart’s desire!
+          </p>
         </div>
       </div>
       <!-- ./ABOUT CONTAINER-->
@@ -83,7 +95,7 @@
         <div class="row">
 
           <div class="col">
-            <h2>Have burning <br> questions? Let's<br> Chat!</h2>
+            <h2 class="fadein fadein-3">Have burning <br> questions? Let's<br> Chat!</h2>
             <img class="hidden" src="res/FingerPoint_2.png">
           </div>
 
@@ -100,13 +112,19 @@
 
       </div>
       <div class="footer">
-        <p>Developed with love from Thomas and Aaron</p>
+        <ion-icon name="heart" style="color:#F59CB9; margin-right: 5px;"></ion-icon>
+        <p>Developed with love from <span><a href="">Thomas</a></span> and <span><a href="https://github.com/Arhuan">Aaron</a></span></p>
       </div>
       <!-- ./CONTACT CONTAINER-->
 
     </div>
     <!-- ./WRAPPER -->
-    <script src="scripts.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha512-z4OUqw38qNLpn1libAN9BsoDx6nbNFio5lA6CuTp9NlK83b89hgyCVq+N5FdBJptINztxn1Z3SaKSKUS5UP60Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="scripts/scripts.js"></script>
+    <script src="scripts/scroll_to.js"></script>
+    <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
+
   </body>
 
 </html>

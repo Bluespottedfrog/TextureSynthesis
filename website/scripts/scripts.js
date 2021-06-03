@@ -1,0 +1,69 @@
+var grid = document.querySelector('.heroGrid');
+
+var gridw = grid.clientWidth;
+var gridh = grid.clientHeight;
+
+var rows = gridh/50;
+var cols = gridw/50;
+
+
+
+var textWrapper = document.querySelector('.ani .letters');
+textWrapper.innerHTML = textWrapper.textContent.replace(/\S/g, "<span class='letter'>$&</span>");
+
+for(var i = 0; i < rows; i++){
+  var rowContainer = document.createElement("div");
+  rowContainer.style.display = "flex";
+  rowContainer.style.width = gridw + "px";
+  for(var j = 0; j < cols; j++){
+    var pixel = document.createElement("div");
+    pixel.className = "pixel";
+    pixel.style.width = "50px";
+    pixel.style.height = "50px";
+    rowContainer.appendChild(pixel);
+  }
+  grid.appendChild(rowContainer);
+}
+
+var gridAnimation = anime({
+  targets:'.pixel',
+  scale:[
+    {value: 0, easing: 'easeOutSine', duration: 500},
+  ],
+  delay: anime.stagger(100, {grid: [rows, cols], from: 'center'})
+});
+
+var textAnimation = anime.timeline({loop: false})
+  .add({
+    targets: '.ani .letter',
+    translateY: ["2em", 0],
+    translateZ: 0,
+    duration: 800,
+    delay: (el, i) => 80 * i
+  });
+
+var arrows = anime({
+  targets: '.arrows .down',
+  duration: 1000,
+  loop: true,
+  easing: 'easeInOutQuad',
+  keyframes: [
+    {translateY: 10},
+    {translateY: 0}
+  ],
+  delay: 500
+});
+
+function mousemovement(event){
+  var hero_img = document.querySelector('.hero_img');
+  hero_img.style.transform = "translate(" + event.clientX + "px " + event.clientY + "px);";
+
+  console.log("translate(" + event.clientX + "px " + event.clientY + "px)");
+}
+
+document.addEventListener("mousemove", mousemovement);
+
+arrows.play();
+//animation.play();
+gridAnimation.play();
+textAnimation.play();
