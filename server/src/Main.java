@@ -20,8 +20,10 @@ class Main extends JFrame implements ActionListener {
     BufferedImage originalImage;
 
     BufferedImage patch;
+    BufferedImage patch_2;
 
     TextureTransfer test;
+
     String filepath;
 
     int width; // width of the image
@@ -102,13 +104,15 @@ class Main extends JFrame implements ActionListener {
             blockTexture = ImageIO.read(file);
             originalImage = ImageIO.read(file);
             // TODO: Hardcoded targetImage for now
-            BufferedImage targetImage = ImageIO.read(getClass().getResource("/starry.jpg"));
+            BufferedImage targetImage = ImageIO.read(getClass().getResource("/dragon.jpg"));
 
             width = originalImage.getWidth();
             height = originalImage.getHeight();
 
-            test = new TextureTransfer(blockTexture, targetImage);
+            test = new TextureTransfer(blockTexture, targetImage, 5);
             patch = test.generateTexture();
+        
+            
             repaint();
         } catch (IOException e1) {
             // TODO Auto-generated catch block

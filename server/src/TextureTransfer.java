@@ -1,11 +1,17 @@
 import java.awt.Color;
 import java.awt.image.BufferedImage;
+import java.awt.image.BufferedImageOp;
 import java.awt.image.ColorModel;
+import java.awt.image.ConvolveOp;
+import java.awt.image.Kernel;
 import java.awt.image.WritableRaster;
+import java.lang.Object;
+
+
 
 public class TextureTransfer {
 
-    final int TOTAL_ITERATIONS = 3;
+    
 
     BufferedImage src;
     BufferedImage target;
@@ -16,6 +22,8 @@ public class TextureTransfer {
     int fullBlockSize;
     int resultBlockSize;
     int overlap;
+    
+    int pass;
 
     double alpha; // parameter to determine the tradeoff between texture synth and target correspondence map
 
@@ -26,9 +34,10 @@ public class TextureTransfer {
         return new BufferedImage(cm, raster, isAlphaPremultiplied, null);
     }
 
-    public TextureTransfer(BufferedImage src, BufferedImage target) {
+    public TextureTransfer(BufferedImage src, BufferedImage target, int pass) {
         this.src = src;
         this.target = target;
+        this.pass = pass;
     }
 
     public BufferedImage drawPatches(int iteration) {
@@ -53,8 +62,8 @@ public class TextureTransfer {
 
     public BufferedImage generateTexture() {
         BufferedImage result = null;
-        for (int iteration = 0; iteration < TOTAL_ITERATIONS; iteration++) {
-            alpha = 0.8 * ((double) iteration / TOTAL_ITERATIONS) + 0.1;
+        for (int iteration = 0; iteration < pass; iteration++) {
+            alpha = 0.8 * ((double) iteration / (pass-1)) + 0.1;
             result = drawPatches(iteration);
 
             //Fill horizontal overlap
@@ -104,8 +113,12 @@ public class TextureTransfer {
 
         // TODO: Try tweaking block size, maybe off image size?
         int denom = (iteration == 0) ? 1 : 3 * iteration;
-        fullBlockSize = (6 * 3 * TOTAL_ITERATIONS) / denom;
-        overlap = fullBlockSize / 6;
+        //fullBlockSize = (27 / (iteration + 1));
+        
+        fullBlockSize = (27 * pass) / denom;
+        //fullBlockSize = 27;
+        
+        overlap = fullBlockSize / 3;
         resultBlockSize = fullBlockSize - overlap;
 
         rows = (int) Math.ceil((double) target.getHeight() / fullBlockSize);
@@ -130,7 +143,8 @@ public class TextureTransfer {
         int targetWidth = (x * fullBlockSize + fullBlockSize > target.getWidth()) ? target.getWidth() - x * fullBlockSize : fullBlockSize;
         int targetHeight = (y * fullBlockSize + fullBlockSize > target.getHeight()) ? target.getHeight() - y * fullBlockSize : fullBlockSize;
         BufferedImage targetArea = target.getSubimage(x * fullBlockSize, y * fullBlockSize, targetWidth, targetHeight);
-        double[][] targetCorrespondenceMap = createCorrespondenceMap(targetArea);
+        //double[][] targetCorrespondenceMap = createCorrespondenceMap(targetArea);
+        double[][] targetCorrespondenceMap = blurMap(targetArea);
 
         // Fill an array of length sampleSize samples of blocks that could match the genesis
         for (int i = 0; i < sampleSize; i++) {
@@ -170,7 +184,8 @@ public class TextureTransfer {
             }
 
             // Calculate correspondence error with target image
-            double[][] sampleBlockCorrespondenceMap = createCorrespondenceMap(sampleBlocks[i]);
+            //double[][] sampleBlockCorrespondenceMap = createCorrespondenceMap(sampleBlocks[i]);
+            double[][] sampleBlockCorrespondenceMap = blurMap(sampleBlocks[i]);
             double corrErr = calculateCorrespondenceErr(sampleBlockCorrespondenceMap, targetCorrespondenceMap);
 
             err[i] = alpha * err[i] + (1 - alpha) * corrErr;
@@ -186,7 +201,158 @@ public class TextureTransfer {
 
         return sampleBlocks[index];
     }
+    public BufferedImage boxBlur(BufferedImage src) {
+   	BufferedImage res = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
+   	BufferedImage t1 = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
+   	BufferedImage t2 = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
+    	
+    	float[] matrix = {
+    			0.111f, 0.111f, 0.111f,
+    			0.111f, 0.111f, 0.111f,
+    			0.111f, 0.111f, 0.111f,
+    	};
+    	BufferedImageOp op = new ConvolveOp(new Kernel(3, 3, matrix));
+    	op.filter(src, t1);
+    	op.filter(t1, t2);
+    	op.filter(t1, res);
+    	
+    	return res;
+    }
+    private double[][] blurMap(BufferedImage src) {
+    	BufferedImage res = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
+    	BufferedImage temp = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
+    	
+    	
+    	float[] matrix = {
+    			0.111f, 0.111f, 0.111f,
+    			0.111f, 0.111f, 0.111f,
+    			0.111f, 0.111f, 0.111f,
+    	};
+    	
+    	BufferedImageOp op = new ConvolveOp(new Kernel(3, 3, matrix));
+    	op.filter(src, temp);
+    	op.filter(temp, res);
+    	
+    
+    	//res = gaussianBlur(src);
+    	//res = gaussianBlur(res);
+    	
+        double[][] result = new double[src.getHeight()][src.getWidth()];
 
+        for (int y = 0; y < src.getHeight(); y++) {
+            for (int x = 0; x < src.getWidth(); x++) {
+                Color c = new Color(res.getRGB(x, y));
+                result[y][x] = calculateLuminance(c.getRed(), c.getGreen(), c.getBlue());
+            }
+        }
+        
+    	return result;
+    }
+    
+    public BufferedImage gaussianBlur(BufferedImage src) {
+    	BufferedImage res = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
+    	
+    	/*
+    	Color c[];
+    	int i = 0;
+        int max = 49, radius = 3;
+        int a1 = 0, r1 = 0, g1 = 0, b1 = 0,t=0;
+        c = new Color[max];
+        float xx[] = {1,1,1,1,1,1,1,
+                      1,3,3,3,3,3,1,
+                      1,3,4,4,4,3,1,
+                      1,3,4,15,4,3,1,
+                      1,3,4,4,4,3,1,
+                      1,3,3,3,3,3,1,
+                      1,1,1,1,1,1,1,
+
+        };
+        
+        float h=0;
+        for(t=0;t<xx.length;t++){
+            h+=xx[t];
+        }
+        //System.out.println(h);
+        int x = 1, y = 1, x1, y1, ex = 5, d = 0, ll = 0;
+        for (x = radius;x < src.getHeight()- radius; x++) {
+            for (y = radius; y < src.getWidth() - radius; y++) {
+
+                for (x1 = x - radius; x1 <= x + radius; x1++) {
+                    for (y1 = y - radius; y1 <= y + radius; y1++) {
+                        c[i] = new Color(src.getRGB(y1, x1));
+                        i++;
+
+                    }
+                }
+                i = 0;
+                ll = 0;
+                for (d = 0; d < max; d++) {
+                    float o = xx[d] * c[d].getAlpha();
+                    a1 = (int) (a1 + o);
+                }
+                a1 = (int) (a1 / h);
+
+                for (d = 0; d < max; d++) {
+                    float o = xx[d] * c[d].getRed();
+                    r1 = (int) (r1 + o);
+                }
+                r1 = (int) (r1 / h);
+
+                for (d = 0; d < max; d++) {
+                    float o = xx[d] * c[d].getGreen();
+                    g1 = (int) (g1 + o);
+                }
+                g1 = (int) (g1 / h);
+        
+                for (d = 0; d < max; d++) {
+                    float o = xx[d] * c[d].getBlue();
+                    b1 = (int) (b1 + o);
+                }
+                b1 = (int) (b1 / h);
+                int sum1 = (r1 << 16) + (g1 << 8) + b1;
+                res.setRGB(y, x, sum1);
+                r1 = g1 = b1 = 0;
+            }
+        }
+        */
+    	
+    	
+    	double[] blur = {0.00598, 0.060626, 0.241843, 0.383103, 0.241843, 0.060626, 0.00598};
+    	
+    	for (int y = 0; y < src.getHeight(); y++) {
+            for (int x = 3; x < src.getWidth() - 3; x++) {
+                float r = 0, g = 0, b = 0;
+                for (int i = 0; i < 7; i++) {
+                    int pixel = src.getRGB(x + i - 3, y);
+                    b += (pixel & 0xFF) * blur[i];
+                    g += ((pixel >> 8) & 0xFF) * blur[i];
+                    r += ((pixel >> 16) & 0xFF) * blur[i];
+                }
+                int p = (int)b + ((int)g << 8) + ((int)r << 16);
+                // transpose result!
+                res.setRGB(x, y, p);
+            }
+        }
+    	
+    	for (int x = 0; x < src.getWidth(); x++) {
+            for (int y = 3; y < src.getHeight() - 3; y++) {
+                float r = 0, g = 0, b = 0;
+                for (int i = 0; i < 7; i++) {
+                    int pixel = src.getRGB(x , y + i - 3);
+                    b += (pixel & 0xFF) * blur[i];
+                    g += ((pixel >> 8) & 0xFF) * blur[i];
+                    r += ((pixel >> 16) & 0xFF) * blur[i];
+                }
+                int p = (int)b + ((int)g << 8) + ((int)r << 16);
+                // transpose result!
+                res.setRGB(x, y, p);
+            }
+        }
+        
+    	
+    	
+    	return res;
+    }
     private double calculateLuminance(int r, int g, int b) {
         return 0.2126 * r + 0.7152 * g + 0.0722 * b;
     }
