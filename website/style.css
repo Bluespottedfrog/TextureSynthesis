@@ -1,3 +1,7 @@
+::selection{
+  background: black;
+  color: white;
+}
 @font-face {
   font-family:'Benton Sans';
   src: url('res/BentonSans-Regular.ttf');
@@ -268,6 +272,14 @@ input[type="text"], textarea{
   justify-content: space-around;
 }
 
+#input, #texture{
+  background-repeat: no-repeat;
+  background-size: cover;
+}
+
+#texturize:disabled{
+  display: none;
+}
 /* END OF CONTAINER CLASSES */
 
 /* UI Component Stylings */
@@ -295,7 +307,19 @@ input[type="submit"]{
   font-family: 'Benton Sans';
   font-size: 18px;
 }
-.button{
+
+input[type="file"]{
+  opacity: 1;
+  width: 100px;
+  position: absolute;
+  z-index: 5;
+  opacity: 0;
+}
+input[type="file"]:hover{
+  cursor: pointer;
+}
+
+.button, input[type="file"]{
   display: inline-flex;
   justify-content: center;
   align-items: center;
@@ -307,7 +331,7 @@ input[type="submit"]{
   padding: 5px 20px 5px 20px;
   transition: border-bottom-width 0.05s linear,transform 0.05s linear;
 }
-.button:hover{
+.button:hover, .pseudo-hover{
   cursor: pointer;
   border-bottom-width: 0px;
   transform: translateY(2px);

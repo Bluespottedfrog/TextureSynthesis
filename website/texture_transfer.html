@@ -7,6 +7,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="shortcut icon" href="res/logo.svg">
     <meta charset="utf-8">
+
+    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+    <script class="jsbin" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
   </head>
 
   <body>
@@ -35,13 +38,25 @@
               <p class="label">JPG or PNG only</p>
               <h5>Upload Image</h5>
               <div class="img-wrapper">
-                <div class="img-holder"></div>
+                <div class="img-holder" id="input">
 
-                <div class="button-wrapper">
-                  <a onclick="" href=""><h4 class="button"> Upload </h4></a>
                 </div>
 
-              </div>
+                  <div class="button-wrapper">
+                    <input id="img"
+                           onmouseover="hoverButton(upload_input_button)"
+                           onmouseleave="hoverOut(upload_input_button)"
+                           value="Upload"
+                           onchange="readInput(this);"
+                           type="file"
+                           name="img"
+                           accept="image/*"
+                           >
+                        <h4 id="upload_input_button" class="button"> Upload </h4>
+                  </div>
+                </div>
+
+
             </div>
             <!-- ./UPLOAD CONTAINER -->
 
@@ -50,17 +65,31 @@
               <p class="label">JPG or PNG only</p>
               <h5>Upload Texture</h5>
               <div class="img-wrapper">
-                <div class="img-holder"></div>
+                <div class="img-holder" id="texture">
+
+                </div>
 
                 <div style="display:flex; align-items: center;">
                   <div class="button-wrapper">
-                    <a onclick="" href=""><h4 class="button"> Upload </h4></a>
+                    <!--<a onclick="" href=""><h4 class="button"> Upload </h4></a>-->
+                    <input
+                          onmouseover="hoverButton(texture_input)"
+                          onmouseleave="hoverOut(texture_input)"
+                          onchange="readTexture(this);"
+                          type="file"
+                          id="img"
+                          name="img"
+                          accept="image/*"
+                          >
+                          <h4 id="texture_input" class="button"> Upload </h4>
+
                   </div>
                   <h4> <b>or</b> </h4>
                   <div class="button-wrapper">
-                    <a onclick="" href=""><h4 class="button alt"> Choose</h4></a>
+                    <a onclick=""><h4 class="button alt"> Choose</h4></a>
                   </div>
                 </div>
+
               </div>
             </div>
             <!-- ./UPLOAD TEXTURE CONTAINER -->
@@ -82,7 +111,12 @@
 
 
         </div>
-      </div>
+
+        <div class="button-wrapper">
+          <a onclick="sendImages()" id="texturize"><h4 class="button" disabled="disabled"> Texturize! </h4></a>
+        </div>
+        <p id="texturize_label" style="color:red;"> </p>
+      </div> <!-- ./ WRAPPER -->
 
       <div class="footer">
         <ion-icon name="heart" style="color:#F59CB9; margin-right: 5px;"></ion-icon>
@@ -92,7 +126,8 @@
     </div>
     <!-- ./WRAPPER -->
     <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
-    <script src="scripts.js"></script>
+    <script src="scripts/scripts.js"></script>
+    <script src="scripts/upload.js"></script>
   </body>
 
 </html>
