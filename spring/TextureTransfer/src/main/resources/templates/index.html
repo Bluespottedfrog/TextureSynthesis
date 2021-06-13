@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
   <head>
     <title>Texturize Me | Home </title>
     <link rel="stylesheet" href="style.css">
@@ -15,12 +15,12 @@
       <div class="header">
 
           <div class="header-logo" >
-            <a href="index.html"><img src="res/logo.svg"></a>
+            <a th:href="@{index.html}"><img src="res/logo.svg"></a>
           </div>
           <div class="header-main-content">
             <a href="#about"><h4 class="header_content"> about </h4></a>
             <a href="#contact"><h4 class="header_content"> contact </h4></a>
-            <a href="texture_transfer.html"><h4 class="button"> try it! </h4></a>
+            <a th:href="@{texture_transfer}"><h4 class="button"> try it! </h4></a>
           </div>
 
       </div>
@@ -46,7 +46,7 @@
 
         <p> Turn any image into a work of art with the click of a button </p>
         <div class="button-wrapper">
-          <a href="texture_transfer.html"><h4 class="button"> try it! </h4></a>
+          <a th:href="@{texture_transfer}"><h4 class="button"> try it! </h4></a>
         </div>
 
         <a href="#examples"><p> See More </p></a>
@@ -71,7 +71,6 @@
             <a style="background-image:url(res/patchShib.png)"class="grid-item item-2"></a>
             <a style="background-image:url(res/colorful.png)"class="grid-item item-2"></a>
             <a style="background-image:url(res/pulse.png)"class="grid-item item-1"></a>
-            <a class="grid-item item-1"></a>
           </div>
         </div>
 

@@ -104,7 +104,7 @@ class Main extends JFrame implements ActionListener {
             blockTexture = ImageIO.read(file);
             originalImage = ImageIO.read(file);
             // TODO: Hardcoded targetImage for now
-            BufferedImage targetImage = ImageIO.read(getClass().getResource("/dragon.jpg"));
+            BufferedImage targetImage = ImageIO.read(getClass().getResource("/shib.jpg"));
 
             width = originalImage.getWidth();
             height = originalImage.getHeight();

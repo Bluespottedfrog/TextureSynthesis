@@ -30,70 +30,70 @@
     <!-- WRAPPER -->
     <div class="wrapper">
 
-      <div class="container hero">
-        <div class="card-wrapper">
+      <div style="margin-top: 80px;" class="container hero">
+        <form>
             <!-- UPLOAD CONTAINER -->
-            <div class="card-container">
-              <p class="label">JPG or PNG only</p>
-              <h5>Upload Image</h5>
-              <div class="img-wrapper">
-                <div class="img-holder" id="input">
-
-                </div>
-
-                  <div class="button-wrapper">
-                    <input id="img"
-                           onmouseover="hoverButton(upload_input_button)"
-                           onmouseleave="hoverOut(upload_input_button)"
-                           value="Upload"
-                           onchange="readInput(this);"
-                           type="file"
-                           name="img"
-                           accept="image/*"
-                           >
-                        <h4 id="upload_input_button" class="button"> Upload </h4>
-                  </div>
-                </div>
-
-
-            </div>
-            <!-- ./UPLOAD CONTAINER -->
-
-            <!-- UPLOAD TEXTURE CONTAINER -->
-            <div class="card-container">
-              <p class="label">JPG or PNG only</p>
-              <h5>Upload Texture</h5>
-              <div class="img-wrapper">
-                <div class="img-holder" id="texture">
-
-                </div>
-
-                <div style="display:flex; align-items: center;">
-                  <div class="button-wrapper">
-                    <!--<a onclick="" href=""><h4 class="button"> Upload </h4></a>-->
-                    <input
-                          onmouseover="hoverButton(texture_input)"
-                          onmouseleave="hoverOut(texture_input)"
-                          onchange="readTexture(this);"
-                          type="file"
-                          id="img"
-                          name="img"
-                          accept="image/*"
-                          >
-                          <h4 id="texture_input" class="button"> Upload </h4>
+              <div class="card-container">
+                <p class="label">JPG or PNG only</p>
+                <h5>Upload Image</h5>
+                <div class="img-wrapper">
+                  <div class="img-holder" id="input">
 
                   </div>
-                  <h4> <b>or</b> </h4>
-                  <div class="button-wrapper">
-                    <a onclick="openMenu()"><h4 class="button alt"> Choose</h4></a>
+
+                    <div class="button-wrapper">
+                      <input id="img"
+                             onmouseover="hoverButton(upload_input_button)"
+                             onmouseleave="hoverOut(upload_input_button)"
+                             value="Upload"
+                             onchange="readInput(this);"
+                             type="file"
+                             name="img"
+                             accept="image/*"
+                             >
+                          <h4 id="upload_input_button" class="button"> Upload </h4>
+                    </div>
                   </div>
-                </div>
+
 
               </div>
-            </div>
-            <!-- ./UPLOAD TEXTURE CONTAINER -->
+              <!-- ./UPLOAD CONTAINER -->
 
-            <!-- UPLOAD CONTAINER -->
+              <!-- UPLOAD TEXTURE CONTAINER -->
+              <div class="card-container">
+                <p class="label">JPG or PNG only</p>
+                <h5>Upload Texture</h5>
+                <div class="img-wrapper">
+                  <div class="img-holder" id="texture">
+
+                  </div>
+
+                  <div style="display:flex; align-items: center;">
+                    <div class="button-wrapper">
+                      <!--<a onclick="" href=""><h4 class="button"> Upload </h4></a>-->
+                      <input
+                            onmouseover="hoverButton(texture_input)"
+                            onmouseleave="hoverOut(texture_input)"
+                            onchange="readTexture(this);"
+                            type="file"
+                            id="img"
+                            name="img"
+                            accept="image/*"
+                            >
+                            <h4 id="texture_input" class="button"> Upload </h4>
+
+                    </div>
+                    <h4> <b>or</b> </h4>
+                    <div class="button-wrapper">
+                      <a onclick="openMenu()"><h4 class="button alt"> Choose</h4></a>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            <!-- ./UPLOAD TEXTURE CONTAINER -->
+            </form>
+            <!-- RESULT CONTAINER -->
             <div class="card-container">
 
               <h5 style="margin-top: 1em;">Final Result</h5>
@@ -109,7 +109,7 @@
             <!-- ./UPLOAD CONTAINER -->
 
 
-        </div>
+
 
         <div class="button-wrapper">
           <button onclick="sendImages()" class="button" id="texturize"><h4>Texturize!</h4></button>

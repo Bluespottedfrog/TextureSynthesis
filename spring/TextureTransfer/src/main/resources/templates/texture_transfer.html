@@ -17,19 +17,21 @@
     <!-- HEADER -->
       <div class="header">
           <div class="header-logo" >
-            <a href="index.html"><img src="res/logo.svg"></a>
+            <a th:href="@{index.html}"><img src="res/logo.svg"></a>
           </div>
           <div class="header-main-content">
             <a href="#about"><h4 class="header_content"> about </h4></a>
             <a href="#contact"><h4 class="header_content"> contact </h4></a>
-            <a href="texture_transfer.html"><h4 class="button"> try it! </h4></a>
+            <a th:href="@{texture_transfer.html}"><h4 class="button"> try it! </h4></a>
           </div>
       </div>
     <!-- ./HEADER -->
 
     <!-- WRAPPER -->
     <div class="wrapper">
-
+    
+	<p style="display: none;" id="b64" th:text="${image}"/>
+	
       <div class="container hero">
         <div class="card-wrapper">
             <!-- UPLOAD CONTAINER -->
@@ -98,7 +100,8 @@
 
               <h5 style="margin-top: 1em;">Final Result</h5>
               <div class="img-wrapper">
-                <div class="img-holder"></div>
+                <div id="result" class="img-holder">
+                </div>
 
                 <div class="button-wrapper">
                   <a onclick="" href=""><h4 class="button"> Save </h4></a>
@@ -122,6 +125,11 @@
         <p>Developed with love from <span><a href="">Thomas</a></span> and <span><a href="https://github.com/Arhuan">Aaron</a></span></p>
       </div>
 
+        <form method="post" enctype="multipart/form-data" action="/texture_transfer">
+            <input style="opacity: 1; position: relative;" type="file" name="imageFile">
+            <input style="opacity: 1; position: relative;" type="file" name="textureFile">
+            <input style="opacity: 1; position: relative;" type="submit" value="Upload">
+        </form>
     </div>
     <!-- ./WRAPPER -->
 
@@ -155,6 +163,7 @@
 
     <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
     <script src="scripts/upload.js"></script>
+    <script src="scripts/interpret.js"></script>
 
   </body>
 

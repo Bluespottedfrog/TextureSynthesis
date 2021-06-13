@@ -44,25 +44,10 @@ function sendImages(){
   var label = document.querySelector("#texturize_label");
 
   if(textureString && inputString){
-      $.ajax({
-      url: 'localhost',    //Your api url
-      type: 'PUT',   //type is any HTTP method
-      data: {
-          data: textureString
-      },      //Data as js object
-  })
-
-  $.ajax({
-    url: 'localhost',    //Your api url
-    type: 'PUT',   //type is any HTTP method
-    data: {
-        data: inputString
-    },      //Data as js object
-    success: function () {
-    }
-})
-;
-  ;
+    var xhttp = new XMLHttpRequest();
+    xhttp.open("GET", "?texture=" + "asd" + "&input=" + "asd");
+    xhttp.send();
+    console.log("Sent");
 
   }
   else if(inputString == null && textureString == null){
