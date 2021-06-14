@@ -45,8 +45,9 @@ function sendImages(){
 
   if(textureString && inputString){
     var xhttp = new XMLHttpRequest();
-    xhttp.open("GET", "?texture=" + "asd" + "&input=" + "asd");
-    xhttp.send();
+    xhttp.open("POST", "/texture_transfer", true);
+    xhttp.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+    xhttp.send("imageFile=" + "penis" + "&textureFile=" + "penis");
     console.log("Sent");
 
   }

@@ -41,17 +41,23 @@ public class TextureTransferApplication {
 	}
 	
 	//Convert BufferedImage into base64 then send the string to frontend
+	//Might need to send post data as b64, as multipart form upload saves to e
 	@PostMapping("/texture_transfer")
 	public String uploadImage(@RequestParam("textureFile") MultipartFile textureFile, @RequestParam("imageFile") MultipartFile imageFile, Model model) throws IOException {
 		
-		File file = toFile(imageFile);
+		File file =  toFile(imageFile);
 		File texture = toFile(textureFile);
+		file.deleteOnExit();
+		texture.deleteOnExit();
 		String b64 = "";
 		
 		if(file != null) {
 			finalOutput(texture, file);
+			//file.delete();
+			//texture.delete();
 			b64 = imageToBase64(finalOutput);
 			model.addAttribute("image", b64);
+			
 		}
 		
 		return "texture_transfer";
