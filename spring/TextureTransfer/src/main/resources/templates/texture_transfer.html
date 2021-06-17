@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
     <title>Texturize Me | Home </title>
     <link rel="stylesheet" href="style.css">
@@ -17,12 +17,12 @@
     <!-- HEADER -->
       <div class="header">
           <div class="header-logo" >
-            <a th:href="@{index.html}"><img src="res/logo.svg"></a>
+            <a th:href="@{index}"><img src="res/logo.svg"></a>
           </div>
           <div class="header-main-content">
             <a href="#about"><h4 class="header_content"> about </h4></a>
             <a href="#contact"><h4 class="header_content"> contact </h4></a>
-            <a th:href="@{texture_transfer.html}"><h4 class="button"> try it! </h4></a>
+            <a th:href="@{texture_transfer}"><h4 class="button"> try it! </h4></a>
           </div>
       </div>
     <!-- ./HEADER -->
@@ -56,7 +56,7 @@
                   <div>
                     <div style="margin: 10px;">
                       <p class="label">JPG or PNG only</p>
-                      <h5>Upload Texture</h5>
+                      <h5>Upload Image</h5>
                     </div>
 
                     <div class="button-wrapper">
@@ -91,7 +91,6 @@
 
                     <div style="display:flex; align-items: center;">
                       <div class="button-wrapper">
-                        <!--<a onclick="" href=""><h4 class="button"> Upload </h4></a>-->
                         <input
                               onmouseover="hoverButton(texture_input)"
                               onmouseleave="hoverOut(texture_input)"
@@ -106,7 +105,7 @@
                       </div>
                       <h4> <b>or</b> </h4>
                         <div class="button-wrapper">
-                          <a onclick="openMenu()"><h4 class="button alt"> Choose</h4></a>
+                          <a onclick="openMenu(menu, '')"><h4 class="button alt"> Choose</h4></a>
                         </div>
                     </div>
 
@@ -139,34 +138,37 @@
     <div id="menu" class="selection-container center">
 
       <div class="selection-menu col center">
+        <ion-icon style="align-self: flex-end;" class="col center" onclick="closeMenu(menu)" id="close" name="close-circle"></ion-icon>
 
-        <div class="col center" onclick="closeMenu()" style="align-self: flex-end;" id="close">
-        </div>
+      <!--  <div class="col center" onclick="closeMenu()" style="align-self: flex-end;" id="close"> -->
+
         <div class="row inline-flex">
           <img onclick="assign(this)" id="berries.png" src="res/textures/berries.png">
-          <img id="lightning.png" src="res/textures/lightning.png">
-          <img id="scribble.jpg" src="res/textures/scribble.jpg">
+          <img onclick="assign(this)" id="lightning.png" src="res/textures/lightning.png">
+          <img onclick="assign(this)" id="scribble.jpg" src="res/textures/scribble.jpg">
         </div>
 
         <div class="row inline-flex">
-          <img id="toast.png" src="res/textures/toast.png">
-          <img id="light.jpg" src="res/textures/light.jpg">
-          <img id="starry.jpg" src="res/textures/starry.jpg">
+          <img onclick="assign(this)" id="toast.png" src="res/textures/toast.png">
+          <img onclick="assign(this)" id="light.jpg" src="res/textures/light.jpg">
+          <img onclick="assign(this)" id="starry.jpg" src="res/textures/starry.jpg">
         </div>
 
         <div class="row inline-flex">
-          <img id="texture.png" src="res/textures/texture.png">
-          <img id="colorful.jpg" src="res/textures/colorful.jpg">
-          <img id="water.png" src="res/textures/water.png">
+          <img onclick="assign(this)" id="texture.png" src="res/textures/texture.png">
+          <img onclick="assign(this)" id="colorful.jpg" src="res/textures/colorful.jpg">
+          <img onclick="assign(this)" id="water.png" src="res/textures/water.png">
         </div>
 
       </div>
 
     </div>
-
+    
+    <script src="scripts/scripts.js"></script>
     <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
     <script src="scripts/upload.js"></script>
     <script src="scripts/interpret.js"></script>
+
 
   </body>
 

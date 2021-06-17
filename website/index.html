@@ -62,16 +62,15 @@
         <div class="grid-container">
           <h3 class="fadein fadein-1">Examples</h3>
           <div class="grid">
-            <a style="background-image:url(res/BerryWorld.png)" class="grid-item item-1"></a>
-            <a style="background-image:url(res/lightningdragon.png)" class="grid-item item-1"></a>
-            <a style="background-image:url(res/scribblemodel.png)"class="grid-item item-3"></a>
-            <a style="background-image:url(res/breadabe.png)"class="grid-item item-2"></a>
-            <a style="background-image:url(res/dancer.png)"class="grid-item item-2"></a>
-            <a style="background-image:url(res/bridge.png)"class="grid-item item-1"></a>
-            <a style="background-image:url(res/patchShib.png)"class="grid-item item-2"></a>
-            <a style="background-image:url(res/colorful.png)"class="grid-item item-2"></a>
-            <a style="background-image:url(res/pulse.png)"class="grid-item item-1"></a>
-            <a class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/BerryWorld.png')" style="background-image:url(res/BerryWorld.png)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/lightningdragon.png')" style="background-image:url(res/lightningdragon.png)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/scribblemodel.png')" style="background-image:url(res/scribblemodel.png)" class="grid-item item-3"></a>
+            <a onclick="openMenu(expandWrapper, 'res/breadabe.png')" style="background-image:url(res/breadabe.png)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/dancer.png')" style="background-image:url(res/dancer.png)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/bridge.png')" style="background-image:url(res/bridge.png)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/patchShib.png')" style="background-image:url(res/patchShib.png)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/colorful.png')" style="background-image:url(res/colorful.png)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/pulse.png')" style="background-image:url(res/pulse.png) "class="grid-item item-1"></a>
           </div>
         </div>
 
@@ -117,6 +116,17 @@
       </div>
       <!-- ./CONTACT CONTAINER-->
 
+    </div>
+
+    <div id="expandWrapper" class="center">
+      <div id="expand-container" class="justify-center align-center">
+
+        <div>
+          <img id="expandImage" >
+          <ion-icon onclick="closeMenu(expandWrapper)" id="close" name="close-circle"></ion-icon>
+        </div>
+
+      </div>
     </div>
     <!-- ./WRAPPER -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>

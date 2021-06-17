@@ -102,6 +102,12 @@ public class TextureTransferApplication {
         return "texture_transfer";
     }
     
+  //Redirect to home
+    @RequestMapping("/index")
+    public String backHome() {
+        return "index";
+    }
+    
     //Redirect to index.html
     @GetMapping
     public String goHome() {
