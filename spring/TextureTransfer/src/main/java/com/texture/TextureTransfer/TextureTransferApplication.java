@@ -1,18 +1,15 @@
 package com.texture.TextureTransfer;
 
+import org.apache.tomcat.util.codec.binary.StringUtils;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
-
 
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.util.Base64;
 
 import javax.imageio.ImageIO;
@@ -27,14 +24,17 @@ import org.springframework.web.multipart.MultipartFile;
 public class TextureTransferApplication {
     private static final int BUFFER_SIZE = 8192;
 
-    BufferedImage blockTexture;
-    BufferedImage targetImage;
+    public static BufferedImage base64ToImage(String data) throws IOException {
+        String base64Image = data.split(",")[1];
+        byte[] imageBytes = Base64.getDecoder().decode(base64Image);
+        return ImageIO.read(new ByteArrayInputStream(imageBytes));
+    }
 
-    TextureTransfer textureTransfer;
-    BufferedImage finalOutput;
-
-    int width;
-    int height;
+    public static String imageToBase64(BufferedImage image) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);
+        ImageIO.write(image, "png", out);
+        return Base64.getEncoder().encodeToString(out.toByteArray());
+    }
 
     public static void main(String[] args) {
         SpringApplication.run(TextureTransferApplication.class, args);
@@ -43,57 +43,28 @@ public class TextureTransferApplication {
     //Convert BufferedImage into base64 then send the string to frontend
     //Might need to send post data as b64, as multipart form upload saves to e
     @PostMapping("/texture_transfer")
-    public String uploadImage(@RequestParam("textureFile") MultipartFile textureFile, @RequestParam("imageFile") MultipartFile imageFile, Model model) throws IOException {
+    public String uploadImage(@RequestParam("textureFile") MultipartFile textureFile, @RequestParam("imageFile") MultipartFile imageFile, Model model) {
+        try {
+            BufferedImage file = multipartToImage(imageFile);
+            BufferedImage texture = multipartToImage(textureFile);
 
-        File file = toFile(imageFile);
-        File texture = toFile(textureFile);
-        file.deleteOnExit();
-        texture.deleteOnExit();
-        String b64 = "";
-
-        if (file != null) {
-            finalOutput(texture, file);
-            //file.delete();
-            //texture.delete();
-            b64 = imageToBase64(finalOutput);
+            String b64 = performTextureTransfer(file, texture);
             model.addAttribute("image", b64);
-
+        } catch (IOException e) {
+            // TODO: handle error
         }
 
         return "texture_transfer";
     }
 
-    //Function that converts a submitted MultipartFile into a File object, which is then converted to BufferedImage
-    private File toFile(MultipartFile f) throws IOException {
-        File file = new File(f.getOriginalFilename());
-        file.createNewFile();
-        FileOutputStream fos = new FileOutputStream(file);
-        fos.write(f.getBytes());
-        fos.close();
-        return file;
+    private BufferedImage multipartToImage(MultipartFile f) throws IOException {
+        String sb = "data:image/png;base64," + StringUtils.newStringUtf8(Base64.getEncoder().encode(f.getBytes()));
+        return base64ToImage(sb);
     }
 
-    //Read both input files then perform texture transfer
-    private void finalOutput(File textureFile, File inputFile) {
-        try {
-            blockTexture = ImageIO.read(textureFile);
-            targetImage = ImageIO.read(inputFile);
-
-            width = blockTexture.getWidth();
-            height = blockTexture.getHeight();
-
-            textureTransfer = new TextureTransfer(blockTexture, targetImage, 5);
-            finalOutput = textureTransfer.generateTexture();
-        } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-        }
-    }
-
-    public static String imageToBase64(BufferedImage image) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);
-        ImageIO.write(image, "png", out);
-        return Base64.getEncoder().encodeToString(out.toByteArray());
+    private String performTextureTransfer(BufferedImage input, BufferedImage texture) throws IOException {
+        TextureTransfer textureTransfer = new TextureTransfer(texture, input, 5);
+        return imageToBase64(textureTransfer.generateTexture());
     }
 
     //Redirect to texture_transfer.html
@@ -113,6 +84,4 @@ public class TextureTransferApplication {
     public String goHome() {
         return "index";
     }
-
-
 }
