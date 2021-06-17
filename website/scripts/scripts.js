@@ -61,17 +61,21 @@ function mousemovement(event){
   console.log("translate(" + event.clientX + "px " + event.clientY + "px)");
 }
 
-function closeMenu(){
-  var menu = document.querySelector(".selection-container");
+function closeMenu(id){
+  var menu = id;
   menu.style.display = "none";
+  console.log("working");
 
 }
 
-function openMenu(){
-  var menu = document.querySelector(".selection-container");
+function openMenu(id, imageName){
+  var menu = id;
   menu.style.display = "flex";
-
+  var image = document.querySelector('#expandImage');
+  image.setAttribute("src", imageName);
 }
+
+
 
 document.addEventListener("mousemove", mousemovement);
 

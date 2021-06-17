@@ -155,6 +155,22 @@ input[type="text"], textarea{
 
 
 /* Container Classes */
+#expandWrapper{
+  display: none;
+  width: 100vw;
+  height: 100vh;
+  position: fixed;
+  z-index: 102;
+  background-color: rgba(0,0,0,0.5);
+}
+#expand-container{
+  display: flex;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
 .inline-flex{
   display: inline-flex;
 }
@@ -296,6 +312,8 @@ input[type="text"], textarea{
 #input, #texture{
   background-repeat: no-repeat;
   background-size: cover;
+  background-position:center;
+  
 }
 
 p.label{
@@ -319,12 +337,15 @@ p.label{
   border-radius: 20px;
 }
 .result{
+  display:flex;
+  justify-content: center;
+  align-items: center;
   background-color: #e5e5e5;
   border-width: 1px;
   border-color: #CDCDCD;
   border-style: solid;
   width: 800px;
-  height: 500px;
+  height: 525px;
   border-radius: 20px;
 }
 input[type="submit"]{

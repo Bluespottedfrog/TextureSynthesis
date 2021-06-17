@@ -77,36 +77,9 @@ function hoverOut(name){
 function assign(image){
   var texture = document.querySelector("#texture");
 
-  if(image.id == "berries.png"){
-
-  }
-  else if(image.id == "lightning.png"){
-
-  }
-  else if(image.id == "scribble.jpg"){
-
-  }
-  else if(image.id == "toast.png"){
-
-  }
-  else if(image.id == "light.jpg"){
-
-  }
-  else if(image.id == "starry.jpg"){
-
-  }
-  else if(image.id == "texture.png"){
-
-  }
-  else if(image.id == "colorful.jpg"){
-
-  }
-  else{
-
-  }
 
   texture.style.backgroundImage = "url(" + "res/textures/" + image.id + ")";
-  closeMenu();
+  closeMenu(document.querySelector("#menu"));
   console.log(image.id);
 }
 

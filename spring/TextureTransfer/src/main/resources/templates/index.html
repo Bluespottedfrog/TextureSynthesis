@@ -15,7 +15,7 @@
       <div class="header">
 
           <div class="header-logo" >
-            <a th:href="@{index.html}"><img src="res/logo.svg"></a>
+            <a th:href="@{index}"><img src="res/logo.svg"></a>
           </div>
           <div class="header-main-content">
             <a href="#about"><h4 class="header_content"> about </h4></a>
@@ -62,15 +62,15 @@
         <div class="grid-container">
           <h3 class="fadein fadein-1">Examples</h3>
           <div class="grid">
-            <a style="background-image:url(res/BerryWorld.png)" class="grid-item item-1"></a>
-            <a style="background-image:url(res/lightningdragon.png)" class="grid-item item-1"></a>
-            <a style="background-image:url(res/scribblemodel.png)"class="grid-item item-3"></a>
-            <a style="background-image:url(res/breadabe.png)"class="grid-item item-2"></a>
-            <a style="background-image:url(res/dancer.png)"class="grid-item item-2"></a>
-            <a style="background-image:url(res/bridge.png)"class="grid-item item-1"></a>
-            <a style="background-image:url(res/patchShib.png)"class="grid-item item-2"></a>
-            <a style="background-image:url(res/colorful.png)"class="grid-item item-2"></a>
-            <a style="background-image:url(res/pulse.png)"class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/BerryWorld.png')" style="background-image:url(res/BerryWorld.png)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/lightningdragon.png')" style="background-image:url(res/lightningdragon.png)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/scribblemodel.png')" style="background-image:url(res/scribblemodel.png)" class="grid-item item-3"></a>
+            <a onclick="openMenu(expandWrapper, 'res/breadabe.png')" style="background-image:url(res/breadabe.png)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/dancer.png')" style="background-image:url(res/dancer.png)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/bridge.png')" style="background-image:url(res/bridge.png)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/patchShib.png')" style="background-image:url(res/patchShib.png)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/colorful.png')" style="background-image:url(res/colorful.png)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/pulse.png')" style="background-image:url(res/pulse.png) "class="grid-item item-1"></a>
           </div>
         </div>
 
@@ -118,6 +118,18 @@
 
     </div>
     <!-- ./WRAPPER -->
+    
+        <div id="expandWrapper" class="center">
+      <div id="expand-container" class="justify-center align-center">
+
+        <div>
+          <img id="expandImage" >
+          <ion-icon onclick="closeMenu(expandWrapper)" id="close" name="close-circle"></ion-icon>
+        </div>
+
+      </div>
+    </div>
+    
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha512-z4OUqw38qNLpn1libAN9BsoDx6nbNFio5lA6CuTp9NlK83b89hgyCVq+N5FdBJptINztxn1Z3SaKSKUS5UP60Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
     <script src="scripts/scripts.js"></script>
