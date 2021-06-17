@@ -62,37 +62,33 @@ public class TextureTransfer {
             alpha = 0.8 * ((double) iteration / (totalIterations - 1)) + 0.1;
             result = drawPatches(iteration);
 
-            //Fill horizontal overlap
-            //Height - num of rows
             for (int j = 0; j < rows; j++) {
-                //Width - num of cols
-                for (int i = 1; i < cols; i++) {
-                    BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, overlap, resultBlockSize);
-                    BufferedImage leftOverlap = patchArray[j][i - 1].getSubimage(resultBlockSize, 0, overlap, resultBlockSize);
-                    double[] costPath = minErrBoundaryVerticalCut(currOverlap, leftOverlap);
+                for (int i = 0; i < cols; i++) {
+                    if (i > 0) {
+                        // horizontal overlap
+                        BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, overlap, resultBlockSize);
+                        BufferedImage leftOverlap = patchArray[j][i - 1].getSubimage(resultBlockSize, 0, overlap, resultBlockSize);
+                        double[] costPath = minErrBoundaryVerticalCut(currOverlap, leftOverlap);
 
-                    for (int y = 0; y < resultBlockSize; y++) {
-                        for (int x = 0; x < overlap; x++) {
-                            int rgb = getOverlapColorVertical(leftOverlap, currOverlap, costPath, y, x);
-                            result.setRGB(x + resultBlockSize * i, y + resultBlockSize * j, rgb);
+                        for (int y = 0; y < resultBlockSize; y++) {
+                            for (int x = 0; x < overlap; x++) {
+                                int rgb = getOverlapColorVertical(leftOverlap, currOverlap, costPath, y, x);
+                                result.setRGB(x + resultBlockSize * i, y + resultBlockSize * j, rgb);
+                            }
                         }
                     }
-                }
-            }
 
-            //Fill vertical overlap
-            //Height - num of rows
-            for (int j = 1; j < rows; j++) {
-                //Width - num of cols
-                for (int i = 0; i < cols; i++) {
-                    BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, resultBlockSize, overlap);
-                    BufferedImage aboveOverlap = patchArray[j - 1][i].getSubimage(0, resultBlockSize, resultBlockSize, overlap);
-                    double[] costPath = minErrBoundaryHorizontalCut(currOverlap, aboveOverlap);
+                    if (j > 0) {
+                        // vertical overlap
+                        BufferedImage currOverlap = patchArray[j][i].getSubimage(0, 0, resultBlockSize, overlap);
+                        BufferedImage aboveOverlap = patchArray[j - 1][i].getSubimage(0, resultBlockSize, resultBlockSize, overlap);
+                        double[] costPath = minErrBoundaryHorizontalCut(currOverlap, aboveOverlap);
 
-                    for (int y = 0; y < overlap; y++) {
-                        for (int x = 0; x < resultBlockSize; x++) {
-                            int rgb = getOverlapColorHorizontal(aboveOverlap, currOverlap, costPath, y, x);
-                            result.setRGB(x + resultBlockSize * i, y + resultBlockSize * j, rgb);
+                        for (int y = 0; y < overlap; y++) {
+                            for (int x = 0; x < resultBlockSize; x++) {
+                                int rgb = getOverlapColorHorizontal(aboveOverlap, currOverlap, costPath, y, x);
+                                result.setRGB(x + resultBlockSize * i, y + resultBlockSize * j, rgb);
+                            }
                         }
                     }
                 }
@@ -109,10 +105,8 @@ public class TextureTransfer {
 
         // TODO: Try tweaking block size, maybe off image size?
         int denom = (iteration == 0) ? 1 : 3 * iteration;
-        //fullBlockSize = (27 / (iteration + 1));
 
         fullBlockSize = (27 * totalIterations) / denom;
-        //fullBlockSize = 27;
 
         overlap = fullBlockSize / 3;
         resultBlockSize = fullBlockSize - overlap;
@@ -220,7 +214,6 @@ public class TextureTransfer {
         BufferedImage res = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
         BufferedImage temp = new BufferedImage(src.getWidth(), src.getHeight(), src.getType());
 
-
         float[] matrix = {
                 0.111f, 0.111f, 0.111f,
                 0.111f, 0.111f, 0.111f,
@@ -230,7 +223,6 @@ public class TextureTransfer {
         BufferedImageOp op = new ConvolveOp(new Kernel(3, 3, matrix));
         op.filter(src, temp);
         op.filter(temp, res);
-
 
         //res = gaussianBlur(src);
         //res = gaussianBlur(res);

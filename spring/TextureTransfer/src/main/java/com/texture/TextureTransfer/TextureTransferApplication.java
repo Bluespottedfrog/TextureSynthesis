@@ -51,7 +51,7 @@ public class TextureTransferApplication {
             String b64 = performTextureTransfer(file, texture);
             model.addAttribute("image", b64);
         } catch (IOException e) {
-            // TODO: handle error
+            // TODO: handle errors
         }
 
         return "texture_transfer";
