@@ -101,7 +101,7 @@ public class TextureTransfer {
     }
 
     private void fillPatch(int iteration) {
-        int sampleSize = 100;
+        int sampleSize = 50;
 
         // TODO: Try tweaking block size, maybe off image size?
         int denom = (iteration == 0) ? 1 : 3 * iteration;
