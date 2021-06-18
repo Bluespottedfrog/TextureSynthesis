@@ -63,7 +63,7 @@ public class TextureTransferApplication {
     }
 
     private String performTextureTransfer(BufferedImage input, BufferedImage texture) throws IOException {
-        TextureTransfer textureTransfer = new TextureTransfer(texture, input, 5);
+        TextureTransfer textureTransfer = new TextureTransfer(texture, input, 3);
         return imageToBase64(textureTransfer.generateTexture());
     }
 

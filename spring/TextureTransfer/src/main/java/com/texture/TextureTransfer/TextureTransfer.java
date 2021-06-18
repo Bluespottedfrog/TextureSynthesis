@@ -127,69 +127,67 @@ public class TextureTransfer {
     }
 
     private BufferedImage generateBlock(BufferedImage leftBlock, BufferedImage aboveBlock, int sampleSize, int x, int y) {
-        BufferedImage[] sampleBlocks = new BufferedImage[sampleSize];
-        double[] err = new double[sampleSize];
-
         int targetWidth = (x * fullBlockSize + fullBlockSize > target.getWidth()) ? target.getWidth() - x * fullBlockSize : fullBlockSize;
         int targetHeight = (y * fullBlockSize + fullBlockSize > target.getHeight()) ? target.getHeight() - y * fullBlockSize : fullBlockSize;
         BufferedImage targetArea = target.getSubimage(x * fullBlockSize, y * fullBlockSize, targetWidth, targetHeight);
         //double[][] targetCorrespondenceMap = createCorrespondenceMap(targetArea);
         double[][] targetCorrespondenceMap = blurMap(targetArea);
 
+        BufferedImage bestBlock = null;
+        double bestErr = Double.MAX_VALUE;
+
         // Fill an array of length sampleSize samples of blocks that could match the genesis
         for (int i = 0; i < sampleSize; i++) {
             Block block = new Block(src, fullBlockSize);
-            sampleBlocks[i] = block.getBlock();
+            BufferedImage testImage = block.getBlock();
 
+            double err = 0.0;
             double errorLeft = 0;
             double errorAbove = 0;
 
             // Compare horizontal overlap color difference
             if (leftBlock != null) {
                 BufferedImage leftBlockOverlap = leftBlock.getSubimage(resultBlockSize, 0, overlap, fullBlockSize);
-                BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, overlap, fullBlockSize);
+                BufferedImage sampleBlockOverlap = testImage.getSubimage(0, 0, overlap, fullBlockSize);
 
                 errorLeft = calculateTotalSynthError(leftBlockOverlap, sampleBlockOverlap);
-                err[i] = errorLeft;
+                err = errorLeft;
             }
 
             // Compare vertical overlap color difference
             if (aboveBlock != null) {
                 BufferedImage aboveBlockOverlap = aboveBlock.getSubimage(0, resultBlockSize, fullBlockSize, overlap);
-                BufferedImage sampleBlockOverlap = sampleBlocks[i].getSubimage(0, 0, fullBlockSize, overlap);
+                BufferedImage sampleBlockOverlap = testImage.getSubimage(0, 0, fullBlockSize, overlap);
 
                 errorAbove = calculateTotalSynthError(aboveBlockOverlap, sampleBlockOverlap);
-                err[i] = errorAbove;
+                err = errorAbove;
             }
 
             if (leftBlock != null && aboveBlock != null) {
-                err[i] = (errorLeft + errorAbove) / 2;
+                err = (errorLeft + errorAbove) / 2;
             }
 
             if (prevResult != null && x * resultBlockSize < prevResult.getWidth() && y * resultBlockSize < prevResult.getHeight()) {
                 int prevWidth = (x * resultBlockSize + resultBlockSize > prevResult.getWidth()) ? prevResult.getWidth() - x * resultBlockSize : resultBlockSize;
                 int prevHeight = (y * resultBlockSize + resultBlockSize > prevResult.getHeight()) ? prevResult.getHeight() - y * resultBlockSize : resultBlockSize;
                 BufferedImage prevResultBlock = prevResult.getSubimage(x * resultBlockSize, y * resultBlockSize, prevWidth, prevHeight);
-                err[i] += calculateTotalSynthError(sampleBlocks[i], prevResultBlock);
+                err += calculateTotalSynthError(testImage, prevResultBlock);
             }
 
             // Calculate correspondence error with target image
             //double[][] sampleBlockCorrespondenceMap = createCorrespondenceMap(sampleBlocks[i]);
-            double[][] sampleBlockCorrespondenceMap = blurMap(sampleBlocks[i]);
+            double[][] sampleBlockCorrespondenceMap = blurMap(testImage);
             double corrErr = calculateCorrespondenceErr(sampleBlockCorrespondenceMap, targetCorrespondenceMap);
 
-            err[i] = alpha * err[i] + (1 - alpha) * corrErr;
-        }
+            err = alpha * err + (1 - alpha) * corrErr;
 
-        int index = 0;
-        //Find the block that is the best match based on error
-        for (int i = 0; i < sampleBlocks.length; i++) {
-            if (err[i] < err[index]) {
-                index = i;
+            if (err < bestErr) {
+                bestErr = err;
+                bestBlock = testImage;
             }
         }
 
-        return sampleBlocks[index];
+        return bestBlock;
     }
 
     public BufferedImage boxBlur(BufferedImage src) {
