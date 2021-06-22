@@ -1,10 +1,11 @@
 var grid = document.querySelector('.heroGrid');
 
-var gridw = grid.clientWidth;
-var gridh = grid.clientHeight;
+if(grid){
+  var gridw = grid.clientWidth;
+  var gridh = grid.clientHeight;
 
-var rows = gridh/50;
-var cols = gridw/50;
+  var rows = gridh/50;
+  var cols = gridw/50;
 
 
 
@@ -33,6 +34,9 @@ var gridAnimation = anime({
   delay: anime.stagger(100, {grid: [rows, cols], from: 'center'})
 });
 
+
+
+
 var textAnimation = anime.timeline({loop: false})
   .add({
     targets: '.ani .letter',
@@ -54,18 +58,22 @@ var arrows = anime({
   delay: 500
 });
 
+gridAnimation.play();
+textAnimation.play();
+arrows.play();
+
+}
+
 function mousemovement(event){
   var hero_img = document.querySelector('.hero_img');
-  hero_img.style.transform = "translate(" + event.clientX + "px " + event.clientY + "px);";
-
-  console.log("translate(" + event.clientX + "px " + event.clientY + "px)");
+  if(hero_img){
+    hero_img.style.transform = "translate(" + event.clientX + "px " + event.clientY + "px);";
+  }
 }
 
 function closeMenu(id){
   var menu = id;
   menu.style.display = "none";
-  console.log("working");
-
 }
 
 function openMenu(id, imageName){
@@ -80,7 +88,35 @@ function openMenu(id, imageName){
 
 document.addEventListener("mousemove", mousemovement);
 
-arrows.play();
+function animateLogo(){
+  var logo = document.querySelector("#logo");
+
+  var anim = bodyMovin(logo, false);
+
+  logo.addEventListener('mouseenter', () => {
+  	anim.setDirection(1);
+  	anim.play();
+  });
+
+  logo.addEventListener('mouseleave', () => {
+  	anim.pause();
+  });
+
+}
+
+function bodyMovin(logo, autoplay){
+  console.log(logo);
+  var anim = bodymovin.loadAnimation({
+    container: logo,
+    path: 'res/AnimatedLogo.json',
+    renderer: 'svg',
+    loop: true,
+    autoplay: autoplay
+  });
+
+  return anim;
+}
+
+animateLogo();
+
 //animation.play();
-gridAnimation.play();
-textAnimation.play();

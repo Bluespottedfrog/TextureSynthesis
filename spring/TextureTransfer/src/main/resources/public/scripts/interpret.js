@@ -5,7 +5,9 @@ function interpret(){
     image.src='data:image/png;base64,' + b64.innerText;
 
     var container = document.querySelector("#result");
+    image.style.maxHeight = "525px";
     container.appendChild(image);
+
   }
   else{
     console.log("is null");

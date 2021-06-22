@@ -127,8 +127,8 @@ input[type="text"], textarea{
   width: 50%;
   padding-left: 10%;
 }
-.header-logo > a > img{
-  width: 40px;
+.header-logo > a{
+  width: 50px;
 }
 .header-main-content{
   display: flex;
@@ -228,7 +228,7 @@ input[type="text"], textarea{
 .grid-item{
   background-repeat: no-repeat;
   background-size:cover;
-  background-position:center;
+  background-position:center top;
   border-radius: 10px;
   transition: opacity 0.25s linear;
   opacity: 0;
@@ -281,11 +281,13 @@ input[type="text"], textarea{
 }
 
 .card-container{
-  width: 250px;
+  width: 50vw;
 }
+
 .card-container:nth-child(2){
   width: 500px;
 }
+
 .card-wrapper{
   display: flex;
   width: 80%;
@@ -294,28 +296,42 @@ input[type="text"], textarea{
 }
 
 .selection-container{
+  position: fixed;
   width: 100%;
   height: 100%;
   display: none;
   justify-content: center;
   align-items: center;
   background-color: rgba(0, 0, 0, 0.5);
-  position: absolute;
   z-index: 21;
 }
 
+.transfer-container{
+	display: flex;
+	min-height: 100vh;
+	width: 80vw;
+	margin: 0vw 10vw 0vw 10vw;
+	margin-top: 200px;
+}
 
 
 /* END OF CONTAINER CLASSES */
 
 /* UI Component Stylings */
-#input, #texture{
+#input, #texture, #result{
   background-repeat: no-repeat;
-  background-size: cover;
-  background-position:center;
-  
+  background-size: contain;
+  background-position: center top;
 }
 
+#result{
+  background-position: center;
+}
+
+#loadIcon{
+  width: 75px;
+  height: 75px;
+}
 p.label{
   color: #c4c4c4;
 
@@ -344,7 +360,7 @@ p.label{
   border-width: 1px;
   border-color: #CDCDCD;
   border-style: solid;
-  width: 800px;
+  width: 90%;
   height: 525px;
   border-radius: 20px;
 }
@@ -360,6 +376,7 @@ input[type="file"]{
   z-index: 5;
   opacity: 0;
 }
+
 input[type="file"]:hover{
   cursor: pointer;
 }
@@ -389,6 +406,15 @@ input[type="file"]:hover{
   align-items: center;
   margin: 10px;
 }
+.button:disabled{
+  border-bottom-color: #BEBCB4;
+  background-color: #E5E5E5;
+}
+.button:disabled:hover{
+  cursor:default;
+  border-bottom-width: 2px;
+  transform: translateY(0px);
+}
 
 .alt{
   background-color: #78CFD4;
@@ -396,7 +422,7 @@ input[type="file"]:hover{
 }
 
 .footer{
-  margin-top: 57px;
+
   display: flex;
   width: 100vw;
   height: 56px;
@@ -495,6 +521,7 @@ input[type="file"]:hover{
   .row{
     flex-direction: column;
   }
+
   .hidden{
     transform: translateX(-20px);
     display: none;
@@ -510,5 +537,9 @@ input[type="file"]:hover{
   }
   .card-container:nth-child(2){
     width: 250px;
+  }
+  .card-container{
+  	width: 280px;
+  	margin-bottom: 20px;
   }
 }

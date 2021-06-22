@@ -1,27 +1,28 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
   <head>
-    <title>Texturize Me | Home </title>
+    <title>Texturize Me | Texturizer </title>
     <link rel="stylesheet" href="style.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="res/logo.svg">
+    <link rel="shortcut icon" href="res/logo.svg" sizes="any" type="image/svg+xml">
     <meta charset="utf-8">
-
+	<!--
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.0/jquery-ui.min.js"></script>
+    -->
+
+    <script src="scripts/jquery.min.js"></script>
   </head>
 
-  <body>
+  <body onload="bodyMovin(loadIcon, true)">
 
     <!-- HEADER -->
       <div class="header">
           <div class="header-logo" >
-            <a th:href="@{index}"><img src="res/logo.svg"></a>
+            <a id="logo" th:href="@{index}"></a>
           </div>
           <div class="header-main-content">
-            <a href="#about"><h4 class="header_content"> about </h4></a>
-            <a href="#contact"><h4 class="header_content"> contact </h4></a>
+            <a th:href="@{index#about}"><h4 class="header_content"> about </h4></a>
             <a th:href="@{texture_transfer}"><h4 class="button"> try it! </h4></a>
           </div>
       </div>
@@ -31,17 +32,19 @@
     <div class="wrapper">
       <p style="display: none;" id="b64" th:text="${image}"/>
 
-      <div style="margin-top: 200px; width: 100vw; height: 100vh;" class="container row center">
+      <div class="transfer-container row">
 
-        <div style="width: 50vw;" class="card-container">
+        <div class="card-container">
 
 
 
             <div id="result" class="result"></div>
 
+            <!--
             <div class="button-wrapper">
               <a onclick="" href=""><h4 class="button"> Save </h4></a>
             </div>
+          -->
 
 
         </div>
@@ -67,7 +70,7 @@
                              onchange="readInput(this);"
                              type="file"
                              name="imageFile"
-                             accept="image/*"
+                             accept="image/png, image/jpg, image/jpeg"
                              >
                           <h4 id="upload_input_button" class="button"> Upload </h4>
                     </div>
@@ -98,15 +101,12 @@
                               type="file"
                               id="img"
                               name="textureFile"
-                              accept="image/*"
+                              accept="image/png, image/jpg, image/jpeg"
                               >
                               <h4 id="texture_input" class="button"> Upload </h4>
 
                       </div>
-                      <h4> <b>or</b> </h4>
-                        <div class="button-wrapper">
-                          <a onclick="openMenu(menu, '')"><h4 class="button alt"> Choose</h4></a>
-                        </div>
+
                     </div>
 
                   </div>
@@ -115,60 +115,43 @@
             <!-- ./UPLOAD TEXTURE CONTAINER -->
 
             <div class="button-wrapper">
-              <!--<a onclick="" href=""><h4 class="button"> Upload </h4></a>-->
-              <!--<input type="submit" class="button" value="Texturize!">-->
-
-              <!--<h4 onclick="sendImages()" id="texture_input" class="button"> Texturize </h4>-->
-              <input class="button" type="submit" value="Texturize!">
-
+              <input id="texturize_submit" disabled onclick="openMenu(loadingScreen,'')" class="button" type="submit" value="Texturize!">
             </div>
-            </form>
+
+        </form>
 
         <p id="texturize_label" style="color:red;"> </p>
       </div> <!-- ./ WRAPPER -->
 
       <div class="footer">
         <ion-icon name="heart" style="color:#F59CB9; margin-right: 5px;"></ion-icon>
-        <p>Developed with love from <span><a href="">Thomas</a></span> and <span><a href="https://github.com/Arhuan">Aaron</a></span></p>
+
+        <p>
+          Developed with love from
+          <span>
+            <a href="https://github.com/Bluespottedfrog">Thomas</a>
+              </span> and <span>
+            <a href="https://github.com/Arhuan">Aaron</a>
+        </span>
+      </p>
+
       </div>
 
     </div>
     <!-- ./WRAPPER -->
 
-    <div id="menu" class="selection-container center">
 
-      <div class="selection-menu col center">
-        <ion-icon style="align-self: flex-end;" class="col center" onclick="closeMenu(menu)" id="close" name="close-circle"></ion-icon>
 
-      <!--  <div class="col center" onclick="closeMenu()" style="align-self: flex-end;" id="close"> -->
-
-        <div class="row inline-flex">
-          <img onclick="assign(this)" id="berries.png" src="res/textures/berries.png">
-          <img onclick="assign(this)" id="lightning.png" src="res/textures/lightning.png">
-          <img onclick="assign(this)" id="scribble.jpg" src="res/textures/scribble.jpg">
-        </div>
-
-        <div class="row inline-flex">
-          <img onclick="assign(this)" id="toast.png" src="res/textures/toast.png">
-          <img onclick="assign(this)" id="light.jpg" src="res/textures/light.jpg">
-          <img onclick="assign(this)" id="starry.jpg" src="res/textures/starry.jpg">
-        </div>
-
-        <div class="row inline-flex">
-          <img onclick="assign(this)" id="texture.png" src="res/textures/texture.png">
-          <img onclick="assign(this)" id="colorful.jpg" src="res/textures/colorful.jpg">
-          <img onclick="assign(this)" id="water.png" src="res/textures/water.png">
-        </div>
-
-      </div>
-
+    <div style="background-color:rgba(255,255,255,0.75)"id="loadingScreen" class="selection-container col">
+      <div  id="loadIcon"></div>
+      <h3> Texturizing . . .</h3>
     </div>
-    
-    <script src="scripts/scripts.js"></script>
-    <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
-    <script src="scripts/upload.js"></script>
-    <script src="scripts/interpret.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.11/lottie.min.js"></script>
 
+    <script src="scripts/scripts.min.js"></script>
+    <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
+    <script src="scripts/upload.min.js"></script>
+    <script src="scripts/interpret.min.js"></script>
 
   </body>
 

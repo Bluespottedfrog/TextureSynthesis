@@ -5,8 +5,14 @@
     <link rel="stylesheet" href="style.css">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="res/logo.svg">
+    <link rel="shortcut icon" href="res/logo.svg" sizes="any" type="image/svg+xml">
     <meta charset="utf-8">
+
+     <meta name="description" content="Texturize your images with Texturize Me!">
+     <meta name="keywords" content="texture, texturize, texture transfer, texturize me, photo texture">
+
+
+
   </head>
 
   <body>
@@ -15,11 +21,10 @@
       <div class="header">
 
           <div class="header-logo" >
-            <a th:href="@{index}"><img src="res/logo.svg"></a>
+            <a id="logo" th:href="@{index}"></a>
           </div>
           <div class="header-main-content">
             <a href="#about"><h4 class="header_content"> about </h4></a>
-            <a href="#contact"><h4 class="header_content"> contact </h4></a>
             <a th:href="@{texture_transfer}"><h4 class="button"> try it! </h4></a>
           </div>
 
@@ -62,15 +67,15 @@
         <div class="grid-container">
           <h3 class="fadein fadein-1">Examples</h3>
           <div class="grid">
-            <a onclick="openMenu(expandWrapper, 'res/BerryWorld.png')" style="background-image:url(res/BerryWorld.png)" class="grid-item item-1"></a>
-            <a onclick="openMenu(expandWrapper, 'res/lightningdragon.png')" style="background-image:url(res/lightningdragon.png)" class="grid-item item-1"></a>
-            <a onclick="openMenu(expandWrapper, 'res/scribblemodel.png')" style="background-image:url(res/scribblemodel.png)" class="grid-item item-3"></a>
-            <a onclick="openMenu(expandWrapper, 'res/breadabe.png')" style="background-image:url(res/breadabe.png)" class="grid-item item-2"></a>
-            <a onclick="openMenu(expandWrapper, 'res/dancer.png')" style="background-image:url(res/dancer.png)" class="grid-item item-2"></a>
-            <a onclick="openMenu(expandWrapper, 'res/bridge.png')" style="background-image:url(res/bridge.png)" class="grid-item item-1"></a>
-            <a onclick="openMenu(expandWrapper, 'res/patchShib.png')" style="background-image:url(res/patchShib.png)" class="grid-item item-2"></a>
-            <a onclick="openMenu(expandWrapper, 'res/colorful.png')" style="background-image:url(res/colorful.png)" class="grid-item item-2"></a>
-            <a onclick="openMenu(expandWrapper, 'res/pulse.png')" style="background-image:url(res/pulse.png) "class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/BerryWorld.PNG')" style="background-image:url(res/BerryWorld.PNG)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/lightningDragon.PNG')" style="background-image:url(res/lightningDragon.PNG)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/scribblemodel.PNG')" style="background-image:url(res/scribblemodel.PNG)" class="grid-item item-3"></a>
+            <a onclick="openMenu(expandWrapper, 'res/breadabe.PNG')" style="background-image:url(res/breadabe.PNG)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/dancer.PNG')" style="background-image:url(res/dancer.PNG)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/bridge.PNG')" style="background-image:url(res/bridge.PNG)" class="grid-item item-1"></a>
+            <a onclick="openMenu(expandWrapper, 'res/patchShib.PNG')" style="background-image:url(res/patchShib.PNG)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/Colorful.PNG')" style="background-image:url(res/Colorful.PNG)" class="grid-item item-2"></a>
+            <a onclick="openMenu(expandWrapper, 'res/pulse.PNG')" style="background-image:url(res/pulse.PNG) "class="grid-item item-1"></a>
           </div>
         </div>
 
@@ -89,36 +94,17 @@
       </div>
       <!-- ./ABOUT CONTAINER-->
 
-      <!-- CONTACT CONTAINER -->
-      <div id="contact" class="container full row justify-center align-center ">
-        <div class="row">
 
-          <div class="col">
-            <h2 class="fadein fadein-3">Have burning <br> questions? Let's<br> Chat!</h2>
-            <img class="hidden" src="res/FingerPoint_2.png">
-          </div>
-
-        <form>
-          <input type="text" placeholder="Your name">
-          <input type="text" placeholder="Your e-mail">
-          <textarea rows="15" cols="70" type="text" placeholder="Your message"></textarea>
-          <div class="button-wrapper">
-            <input class="button" type="submit" value="Submit">
-          </div>
-        </form>
-
-      </div>
-
-      </div>
       <div class="footer">
         <ion-icon name="heart" style="color:#F59CB9; margin-right: 5px;"></ion-icon>
         <p>Developed with love from <span><a href="">Thomas</a></span> and <span><a href="https://github.com/Arhuan">Aaron</a></span></p>
       </div>
+
       <!-- ./CONTACT CONTAINER-->
 
     </div>
     <!-- ./WRAPPER -->
-    
+
         <div id="expandWrapper" class="center">
       <div id="expand-container" class="justify-center align-center">
 
@@ -129,11 +115,12 @@
 
       </div>
     </div>
-    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.11/lottie.min.js"></script>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js" integrity="sha512-z4OUqw38qNLpn1libAN9BsoDx6nbNFio5lA6CuTp9NlK83b89hgyCVq+N5FdBJptINztxn1Z3SaKSKUS5UP60Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="scripts/scripts.js"></script>
-    <script src="scripts/scroll_to.js"></script>
+    <script src="scripts/scripts.min.js"></script>
+    <script src="scripts/scroll_to.min.js"></script>
     <script src="https://unpkg.com/ionicons@5.0.0/dist/ionicons.js"></script>
 
   </body>

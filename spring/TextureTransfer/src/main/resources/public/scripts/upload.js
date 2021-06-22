@@ -1,6 +1,9 @@
 
 var textureString;
 var inputString;
+
+var texturize_submit = document.querySelector("#texturize_submit");
+
 function readTexture(input){
 
   //if there are files
@@ -8,10 +11,12 @@ function readTexture(input){
     var reader = new FileReader();
 
     reader.onload = function (e) {
-      //$('#texture').attr('src', e.target.result);
       $('#texture').css('background-image', "url(" + e.target.result + ")" );
       textureString = e.target.result;
 
+      if(inputString != null && textureString != null){
+        texturize_submit.disabled = false;
+      }
 
     };
     reader.readAsDataURL(input.files[0]);
@@ -23,7 +28,6 @@ function readTexture(input){
 function readInput(input){
   var button = document.querySelector("#texturize");
 
-
   //if there are files
   if(input.files && input.files[0]){
     var reader = new FileReader();
@@ -32,6 +36,10 @@ function readInput(input){
       //$('#input').attr('src', e.target.result);
       $('#input').css('background-image', "url(" + e.target.result + ")" );
       inputString = e.target.result;
+
+      if(textureString != null && inputString != null){
+        texturize_submit.disabled = false;
+      }
 
     };
     reader.readAsDataURL(input.files[0]);
@@ -81,8 +89,4 @@ function assign(image){
   texture.style.backgroundImage = "url(" + "res/textures/" + image.id + ")";
   closeMenu(document.querySelector("#menu"));
   console.log(image.id);
-}
-
-function check(){
-  //Send strings
 }

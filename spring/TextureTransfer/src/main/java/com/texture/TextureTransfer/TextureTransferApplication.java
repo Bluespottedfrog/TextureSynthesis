@@ -31,7 +31,7 @@ public class TextureTransferApplication {
     }
 
     public static String imageToBase64(BufferedImage image) throws IOException {
-        ByteArrayOutputStream out = new ByteArrayOutputStream(BUFFER_SIZE);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
         ImageIO.write(image, "png", out);
         return Base64.getEncoder().encodeToString(out.toByteArray());
     }
@@ -69,7 +69,7 @@ public class TextureTransferApplication {
 
     //Redirect to texture_transfer.html
     @RequestMapping("/texture_transfer")
-    public String defectDetails() {
+    public String toTextureTransfer() {
         return "texture_transfer";
     }
 
